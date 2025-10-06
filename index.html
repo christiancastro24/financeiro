@@ -250,6 +250,13 @@
         box-shadow: 0 4px 12px rgba(56, 239, 125, 0.4);
       }
 
+      .card-subtitle {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-top: 8px;
+        font-weight: 500;
+      }
+
       .btn-unpay {
         background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%);
         color: white;
@@ -685,14 +692,17 @@
             <div class="card income">
               <h3>Entradas</h3>
               <div class="value" id="totalIncome">R$ 0,00</div>
+              <div class="card-subtitle" id="incomeSubtitle"></div>
             </div>
             <div class="card expense">
               <h3>Saídas</h3>
               <div class="value" id="totalExpense">R$ 0,00</div>
+              <div class="card-subtitle" id="expenseSubtitle"></div>
             </div>
             <div class="card balance">
-              <h3>Saldo</h3>
+              <h3>Saldo Previsto</h3>
               <div class="value" id="balance">R$ 0,00</div>
+              <div class="card-subtitle" id="balanceSubtitle"></div>
             </div>
           </div>
 
@@ -1090,22 +1100,40 @@
       function updateDashboard() {
         const monthTransactions = getMonthTransactions();
 
-        const income = monthTransactions
+        // Receitas (pagas e pendentes)
+        const incomePaid = monthTransactions
           .filter((t) => t.type === "income" && t.paid)
           .reduce((sum, t) => sum + t.value, 0);
 
-        const expense = monthTransactions
+        const incomePending = monthTransactions
+          .filter((t) => t.type === "income" && !t.paid)
+          .reduce((sum, t) => sum + t.value, 0);
+
+        const incomeTotal = incomePaid + incomePending;
+
+        // Despesas (pagas e pendentes)
+        const expensePaid = monthTransactions
           .filter((t) => t.type === "expense" && t.paid)
           .reduce((sum, t) => sum + t.value, 0);
 
+        const expensePending = monthTransactions
+          .filter((t) => t.type === "expense" && !t.paid)
+          .reduce((sum, t) => sum + t.value, 0);
+
+        const expenseTotal = expensePaid + expensePending;
+
+        // Saldos
+        const balanceReal = incomePaid - expensePaid;
+        const balancePrevisto = incomeTotal - expenseTotal;
+
         document.getElementById(
           "totalIncome"
-        ).textContent = `R$ ${formatCurrency(income)}`;
+        ).textContent = `R$ ${formatCurrency(incomeTotal)}`;
         document.getElementById(
           "totalExpense"
-        ).textContent = `R$ ${formatCurrency(expense)}`;
+        ).textContent = `R$ ${formatCurrency(expenseTotal)}`;
         document.getElementById("balance").textContent = `R$ ${formatCurrency(
-          income - expense
+          balancePrevisto
         )}`;
 
         renderTransactions(monthTransactions);
