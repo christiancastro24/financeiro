@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Controle Financeiro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -25,6 +26,10 @@
         <div class="nav-item" data-tab="summary">
           <span class="nav-icon">📈</span>
           <span>Resumo por Categoria</span>
+        </div>
+        <div class="nav-item" data-tab="investments">
+          <span class="nav-icon">💎</span>
+          <span>Investimentos</span>
         </div>
       </div>
     </div>
@@ -152,6 +157,168 @@
 
         <div id="summary" class="tab-content">
           <div class="category-summary" id="categorySummary"></div>
+        </div>
+
+        <div id="investments" class="tab-content">
+          <div class="investments-container">
+            <!-- Toggle entre Meus Investimentos e Simulador -->
+            <div class="investment-toggle">
+              <button class="toggle-btn active" data-view="my-investments">
+                💎 Meus Investimentos
+              </button>
+              <button class="toggle-btn" data-view="simulator">
+                🧮 Simulador
+              </button>
+            </div>
+
+            <!-- ========== VISUALIZAÇÃO: MEUS INVESTIMENTOS ========== -->
+            <div id="my-investments-view" class="investment-view active">
+              <!-- Cards de Resumo -->
+              <div class="investments-header">
+                <div class="investments-cards">
+                  <div class="investment-card total">
+                    <div class="investment-card-icon">💰</div>
+                    <div class="investment-card-content">
+                      <div class="investment-card-label">Total Investido</div>
+                      <div class="investment-card-value" id="totalInvested">
+                        R$ 0,00
+                      </div>
+                    </div>
+                  </div>
+                  <div class="investment-card projection">
+                    <div class="investment-card-icon">📊</div>
+                    <div class="investment-card-content">
+                      <div class="investment-card-label">Projeção 12 meses</div>
+                      <div class="investment-card-value" id="projection12m">
+                        R$ 0,00
+                      </div>
+                      <div
+                        class="investment-card-subtitle"
+                        id="projection12mGain"
+                      ></div>
+                    </div>
+                  </div>
+                  <div class="investment-card yield">
+                    <div class="investment-card-icon">📈</div>
+                    <div class="investment-card-content">
+                      <div class="investment-card-label">
+                        Rentabilidade (CDI)
+                      </div>
+                      <div class="investment-card-value" id="currentYield">
+                        100%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gráfico dos Meus Investimentos -->
+              <div class="investment-chart">
+                <h3>📈 Projeção de Crescimento - Meus Investimentos</h3>
+                <canvas id="myInvestmentChart"></canvas>
+              </div>
+
+              <!-- Tabela de Projeção Mensal -->
+              <div class="investment-table-section">
+                <h3>📊 Tabela de Projeção Mensal</h3>
+                <div class="investment-table-container">
+                  <table class="investment-table">
+                    <thead>
+                      <tr>
+                        <th>Mês</th>
+                        <th>Juros</th>
+                        <th>Total Investido</th>
+                        <th>Total Juros</th>
+                        <th>Total Acumulado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="investmentTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Lista de Investimentos -->
+              <div class="investments-list">
+                <div class="section-header">
+                  <h3>💼 Histórico de Investimentos</h3>
+                </div>
+                <div id="investmentsList" class="investments-grid"></div>
+              </div>
+            </div>
+
+            <!-- ========== VISUALIZAÇÃO: SIMULADOR ========== -->
+            <div id="simulator-view" class="investment-view">
+              <!-- Simulador de Investimentos -->
+              <div class="investment-simulator">
+                <h3>💡 Simulador de Investimentos</h3>
+                <div class="simulator-controls">
+                  <div class="simulator-input-group">
+                    <label>Aporte Inicial (R$)</label>
+                    <input
+                      type="number"
+                      id="initialAmount"
+                      value="1000"
+                      min="0"
+                      step="100"
+                    />
+                  </div>
+                  <div class="simulator-input-group">
+                    <label>Aporte Mensal (R$)</label>
+                    <input
+                      type="number"
+                      id="monthlyAmount"
+                      value="500"
+                      min="0"
+                      step="50"
+                    />
+                  </div>
+                  <div class="simulator-input-group">
+                    <label>Período (meses)</label>
+                    <input
+                      type="number"
+                      id="investmentPeriod"
+                      value="12"
+                      min="1"
+                      max="360"
+                    />
+                  </div>
+                  <div class="simulator-input-group">
+                    <label>% do CDI</label>
+                    <input
+                      type="number"
+                      id="cdiPercentage"
+                      value="100"
+                      min="0"
+                      max="150"
+                      step="5"
+                    />
+                  </div>
+                </div>
+                <div class="simulator-results">
+                  <div class="simulator-result-item">
+                    <span>Total Investido:</span>
+                    <strong id="simTotalInvested">R$ 0,00</strong>
+                  </div>
+                  <div class="simulator-result-item">
+                    <span>Rendimento:</span>
+                    <strong id="simEarnings" class="text-success"
+                      >R$ 0,00</strong
+                    >
+                  </div>
+                  <div class="simulator-result-item highlight">
+                    <span>Montante Final:</span>
+                    <strong id="simFinalAmount">R$ 0,00</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gráfico do Simulador -->
+              <div class="investment-chart">
+                <h3>📈 Projeção de Crescimento - Simulador</h3>
+                <canvas id="investmentChart"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

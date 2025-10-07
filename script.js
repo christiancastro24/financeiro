@@ -196,6 +196,7 @@ function switchTab(tab) {
     dashboard: "Dashboard",
     budget: "Orçamento Diário",
     summary: "Resumo por Categoria",
+    investments: "Investimentos",
   };
   document.getElementById("pageTitle").textContent = titles[tab];
 
@@ -203,6 +204,9 @@ function switchTab(tab) {
     updateCategorySummary();
   } else if (tab === "budget") {
     loadCurrentBudget();
+  } else if (tab === "investments") {
+    updateInvestmentsSummary();
+    updateSimulator();
   }
 }
 
@@ -501,5 +505,444 @@ function setupEventListeners() {
     });
 }
 
+/* ============================================ */
+/* ADICIONAR NO FINAL DO SEU script.js */
+/* DEPOIS DA FUNÇÃO init() */
+/* ============================================ */
+
+// ========== VARIÁVEIS GLOBAIS PARA INVESTIMENTOS ==========
+let investmentChart = null;
+let myInvestmentChart = null;
+const CDI_RATE_ANNUAL = 0.1175; // 11.75% ao ano (CDI atual aproximado)
+
+// ========== ATUALIZAR RESUMO DE INVESTIMENTOS ==========
+function updateInvestmentsSummary() {
+  // PEGAR TODOS OS INVESTIMENTOS (não filtrar por mês)
+  const investments = transactions.filter(
+    (t) => t.type === "expense" && t.category === "Investimentos" && t.paid
+  );
+
+  const totalInvested = investments.reduce((sum, inv) => sum + inv.value, 0);
+
+  // Calcular projeção de 12 meses com base no total já investido
+  const projection12m = calculateInvestmentProjection(
+    totalInvested,
+    0,
+    12,
+    100
+  );
+  const gain12m = projection12m - totalInvested;
+
+  document.getElementById("totalInvested").textContent = `R$ ${formatCurrency(
+    totalInvested
+  )}`;
+  document.getElementById("projection12m").textContent = `R$ ${formatCurrency(
+    projection12m
+  )}`;
+  document.getElementById(
+    "projection12mGain"
+  ).textContent = `+R$ ${formatCurrency(gain12m)} de rendimento`;
+
+  renderInvestmentsList(investments);
+  updateMyInvestmentChart(totalInvested);
+  renderInvestmentTable(totalInvested);
+}
+
+// ========== CALCULAR PROJEÇÃO DE INVESTIMENTO ==========
+function calculateInvestmentProjection(
+  initial,
+  monthly,
+  months,
+  cdiPercentage
+) {
+  const monthlyRate =
+    Math.pow(1 + CDI_RATE_ANNUAL * (cdiPercentage / 100), 1 / 12) - 1;
+  let total = initial;
+
+  for (let i = 0; i < months; i++) {
+    total = total * (1 + monthlyRate) + monthly;
+  }
+
+  return total;
+}
+
+// ========== RENDERIZAR LISTA DE INVESTIMENTOS ==========
+function renderInvestmentsList(investments) {
+  const container = document.getElementById("investmentsList");
+
+  if (investments.length === 0) {
+    container.innerHTML = `
+            <div class="empty-investments">
+                <div class="empty-investments-icon">💎</div>
+                <p>Nenhum investimento registrado ainda.<br>
+                Cadastre investimentos na categoria "Investimentos" no Dashboard.</p>
+            </div>
+        `;
+    return;
+  }
+
+  // Ordenar por data (mais recentes primeiro)
+  const sortedInvestments = [...investments].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  container.innerHTML = sortedInvestments
+    .map(
+      (inv) => `
+            <div class="investment-item">
+                <div class="investment-item-header">
+                    <div class="investment-item-title">${inv.title}</div>
+                    <div class="investment-item-date">${new Date(
+                      inv.date
+                    ).toLocaleDateString("pt-BR")}</div>
+                </div>
+                <div class="investment-item-value">R$ ${formatCurrency(
+                  inv.value
+                )}</div>
+                <span class="investment-item-category">${inv.category}</span>
+            </div>
+        `
+    )
+    .join("");
+}
+
+// ========== RENDERIZAR TABELA DE PROJEÇÃO ==========
+function renderInvestmentTable(totalInvested) {
+  const tbody = document.getElementById("investmentTableBody");
+  if (!tbody) {
+    console.error("Elemento investmentTableBody não encontrado!");
+    return;
+  }
+
+  if (totalInvested === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 40px; color: #95a5a6;">
+          Nenhum investimento registrado ainda.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  const monthlyRate = Math.pow(1 + CDI_RATE_ANNUAL, 1 / 12) - 1;
+  const months = 12;
+
+  let rows = [];
+  let accumulated = totalInvested;
+  let totalInterest = 0;
+
+  for (let i = 1; i <= months; i++) {
+    const monthInterest = accumulated * monthlyRate;
+    totalInterest += monthInterest;
+    accumulated += monthInterest;
+
+    rows.push(`
+      <tr>
+        <td>${i}</td>
+        <td class="text-success">R$ ${formatCurrency(monthInterest)}</td>
+        <td class="text-primary">R$ ${formatCurrency(totalInvested)}</td>
+        <td class="text-success">R$ ${formatCurrency(totalInterest)}</td>
+        <td class="text-purple">R$ ${formatCurrency(accumulated)}</td>
+      </tr>
+    `);
+  }
+
+  tbody.innerHTML = rows.join("");
+}
+
+// ========== GRÁFICO DOS MEUS INVESTIMENTOS ==========
+function updateMyInvestmentChart(totalInvested) {
+  const ctx = document.getElementById("myInvestmentChart");
+  if (!ctx) return;
+
+  const labels = [];
+  const investedData = [];
+  const projectionData = [];
+
+  const monthlyRate = Math.pow(1 + CDI_RATE_ANNUAL, 1 / 12) - 1;
+  const months = 12;
+
+  let currentAmount = totalInvested;
+
+  labels.push("Hoje");
+  investedData.push(totalInvested);
+  projectionData.push(totalInvested);
+
+  for (let i = 1; i <= months; i++) {
+    currentAmount = currentAmount * (1 + monthlyRate);
+
+    labels.push(`${i}m`);
+    investedData.push(totalInvested);
+    projectionData.push(currentAmount);
+  }
+
+  if (myInvestmentChart) {
+    myInvestmentChart.destroy();
+  }
+
+  myInvestmentChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Investido",
+          data: investedData,
+          borderColor: "#95a5a6",
+          backgroundColor: "rgba(149, 165, 166, 0.1)",
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: "Projeção com CDI 100%",
+          data: projectionData,
+          borderColor: "#9b59b6",
+          backgroundColor: "rgba(155, 89, 182, 0.1)",
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+          labels: {
+            font: { size: 13, weight: "600" },
+            padding: 15,
+            usePointStyle: true,
+          },
+        },
+        tooltip: {
+          backgroundColor: "rgba(44, 62, 80, 0.95)",
+          padding: 12,
+          callbacks: {
+            label: function (context) {
+              return (
+                context.dataset.label +
+                ": R$ " +
+                formatCurrency(context.parsed.y)
+              );
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              return "R$ " + formatCurrency(value);
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+// ========== ATUALIZAR SIMULADOR ==========
+function updateSimulator() {
+  const initialInput = document.getElementById("initialAmount");
+  const monthlyInput = document.getElementById("monthlyAmount");
+  const monthsInput = document.getElementById("investmentPeriod");
+  const cdiInput = document.getElementById("cdiPercentage");
+
+  if (!initialInput || !monthlyInput || !monthsInput || !cdiInput) {
+    return;
+  }
+
+  const initial = parseFloat(initialInput.value) || 0;
+  const monthly = parseFloat(monthlyInput.value) || 0;
+  const months = parseInt(monthsInput.value) || 12;
+  const cdiPercent = parseInt(cdiInput.value) || 100;
+
+  const totalInvested = initial + monthly * months;
+  const finalAmount = calculateInvestmentProjection(
+    initial,
+    monthly,
+    months,
+    cdiPercent
+  );
+  const earnings = finalAmount - totalInvested;
+
+  document.getElementById(
+    "simTotalInvested"
+  ).textContent = `R$ ${formatCurrency(totalInvested)}`;
+  document.getElementById("simEarnings").textContent = `R$ ${formatCurrency(
+    earnings
+  )}`;
+  document.getElementById("simFinalAmount").textContent = `R$ ${formatCurrency(
+    finalAmount
+  )}`;
+
+  updateInvestmentChart(initial, monthly, months, cdiPercent);
+}
+
+// ========== GRÁFICO DO SIMULADOR ==========
+function updateInvestmentChart(initial, monthly, months, cdiPercent) {
+  const ctx = document.getElementById("investmentChart");
+  if (!ctx) return;
+
+  const labels = [];
+  const investedData = [];
+  const projectionData = [];
+
+  const monthlyRate =
+    Math.pow(1 + CDI_RATE_ANNUAL * (cdiPercent / 100), 1 / 12) - 1;
+
+  let totalInvested = initial;
+  let totalWithYield = initial;
+
+  labels.push("Início");
+  investedData.push(initial);
+  projectionData.push(initial);
+
+  for (let i = 1; i <= months; i++) {
+    totalInvested += monthly;
+    totalWithYield = totalWithYield * (1 + monthlyRate) + monthly;
+
+    labels.push(`Mês ${i}`);
+    investedData.push(totalInvested);
+    projectionData.push(totalWithYield);
+  }
+
+  if (investmentChart) {
+    investmentChart.destroy();
+  }
+
+  investmentChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Total Investido",
+          data: investedData,
+          borderColor: "#95a5a6",
+          backgroundColor: "rgba(149, 165, 166, 0.1)",
+          borderWidth: 2,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: "Projeção com Rendimento",
+          data: projectionData,
+          borderColor: "#9b59b6",
+          backgroundColor: "rgba(155, 89, 182, 0.1)",
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: "top",
+          labels: {
+            font: { size: 13, weight: "600" },
+            padding: 15,
+            usePointStyle: true,
+          },
+        },
+        tooltip: {
+          backgroundColor: "rgba(44, 62, 80, 0.95)",
+          padding: 12,
+          callbacks: {
+            label: function (context) {
+              return (
+                context.dataset.label +
+                ": R$ " +
+                formatCurrency(context.parsed.y)
+              );
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function (value) {
+              return "R$ " + formatCurrency(value);
+            },
+          },
+        },
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45,
+          },
+        },
+      },
+    },
+  });
+}
+
+// ========== ALTERNAR ENTRE VISUALIZAÇÕES ==========
+function setupInvestmentToggle() {
+  const toggleBtns = document.querySelectorAll(".toggle-btn");
+  const views = {
+    "my-investments": document.getElementById("my-investments-view"),
+    simulator: document.getElementById("simulator-view"),
+  };
+
+  toggleBtns.forEach((btn) => {
+    btn.addEventListener("click", function () {
+      const viewName = this.getAttribute("data-view");
+
+      // Atualizar botões
+      toggleBtns.forEach((b) => b.classList.remove("active"));
+      this.classList.add("active");
+
+      // Atualizar views
+      Object.values(views).forEach((v) => v.classList.remove("active"));
+      views[viewName].classList.add("active");
+
+      // Atualizar dados se necessário
+      if (viewName === "simulator") {
+        updateSimulator();
+      }
+    });
+  });
+}
+
+// ========== SETUP EVENT LISTENERS PARA INVESTIMENTOS ==========
+function setupInvestmentsListeners() {
+  const simulatorInputs = [
+    "initialAmount",
+    "monthlyAmount",
+    "investmentPeriod",
+    "cdiPercentage",
+  ];
+
+  simulatorInputs.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener("input", updateSimulator);
+    }
+  });
+
+  setupInvestmentToggle();
+}
+
+// ========== INICIALIZAR INVESTIMENTOS ==========
+setupInvestmentsListeners();
+
 // INITIALIZE APP
 init();
+
+setupInvestmentsListeners();
+if (document.getElementById("investments")) {
+  updateSimulator();
+}

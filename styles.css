@@ -771,3 +771,506 @@ body {
     justify-content: flex-end;
     margin-top: 25px;
 }
+
+
+
+
+
+
+
+/* ============================================ */
+/* ADICIONAR NO FINAL DO SEU ARQUIVO styles.css */
+/* ============================================ */
+
+/* ========== INVESTMENTS SECTION ========== */
+
+.investments-container {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Toggle de Visualização */
+.investment-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf1;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 14px 24px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #7f8c8d;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.toggle-btn:hover {
+    background: #f8f9fa;
+    color: #2c3e50;
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Views */
+.investment-view {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.investment-view.active {
+    display: block;
+}
+
+.investments-header {
+    margin-bottom: 30px;
+}
+
+.investments-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.investment-card {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf1;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    transition: all 0.3s ease;
+}
+
+.investment-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.investment-card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.investment-card.total {
+    border-left: 4px solid #9b59b6;
+}
+
+.investment-card.total .investment-card-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.investment-card.projection {
+    border-left: 4px solid #3498db;
+}
+
+.investment-card.projection .investment-card-icon {
+    background: linear-gradient(135deg, #667eea 0%, #3498db 100%);
+}
+
+.investment-card.yield {
+    border-left: 4px solid #27ae60;
+}
+
+.investment-card.yield .investment-card-icon {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+
+.investment-card-content {
+    flex: 1;
+}
+
+.investment-card-label {
+    font-size: 12px;
+    color: #95a5a6;
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.investment-card-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.investment-card-subtitle {
+    font-size: 13px;
+    color: #27ae60;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* Simulador */
+.investment-simulator {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf1;
+    margin-bottom: 30px;
+}
+
+.investment-simulator h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 24px;
+}
+
+.simulator-controls {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.simulator-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.simulator-input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.simulator-input-group input {
+    padding: 12px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.simulator-input-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+}
+
+.simulator-results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.simulator-result-item {
+    text-align: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.simulator-result-item span {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.simulator-result-item strong {
+    display: block;
+    font-size: 24px;
+    color: white;
+    font-weight: 700;
+}
+
+.simulator-result-item.highlight {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+/* Gráfico */
+.investment-chart {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf1;
+    margin-bottom: 30px;
+}
+
+.investment-chart h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 24px;
+}
+
+#investmentChart,
+#myInvestmentChart {
+    max-height: 400px;
+}
+
+/* Lista de Investimentos */
+.investments-list {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf1;
+}
+
+.investments-list h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 24px;
+}
+
+.investments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.investment-item {
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    border: 1px solid #e8ecf1;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.investment-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+}
+
+.investment-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.investment-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.investment-item-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.investment-item-date {
+    font-size: 12px;
+    color: #95a5a6;
+}
+
+.investment-item-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #9b59b6;
+    margin-bottom: 8px;
+}
+
+.investment-item-category {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(52, 152, 219, 0.15);
+    border-radius: 5px;
+    font-size: 11px;
+    color: #3498db;
+    font-weight: 600;
+}
+
+.empty-investments {
+    text-align: center;
+    padding: 60px 20px;
+    color: #95a5a6;
+}
+
+.empty-investments-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.3;
+}
+
+.empty-investments p {
+    font-size: 15px;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .investments-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .simulator-controls {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .simulator-results {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .simulator-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .investments-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .investment-toggle {
+        flex-direction: column;
+    }
+}
+
+
+
+/* ============================================ */
+/* COPIE E COLE NO FINAL DO SEU styles.css */
+/* APENAS ESTAS LINHAS FORAM ADICIONADAS */
+/* ============================================ */
+
+/* Tabela de Investimentos */
+.investment-table-section {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e8ecf1;
+    margin-bottom: 30px;
+}
+
+.investment-table-section h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 24px;
+}
+
+.investment-table-container {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e8ecf1;
+    max-height: 500px;
+    overflow-y: auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.investment-table-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.investment-table-container::-webkit-scrollbar-track {
+    background: #f5f7fa;
+    border-radius: 10px;
+}
+
+.investment-table-container::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+}
+
+.investment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.investment-table th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    color: #2c3e50;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    border-bottom: 2px solid #e8ecf1;
+    z-index: 10;
+}
+
+.investment-table th:nth-child(2),
+.investment-table th:nth-child(3),
+.investment-table th:nth-child(4),
+.investment-table th:nth-child(5) {
+    text-align: right;
+}
+
+.investment-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+.investment-table td:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.investment-table td:nth-child(2),
+.investment-table td:nth-child(3),
+.investment-table td:nth-child(4),
+.investment-table td:nth-child(5) {
+    text-align: right;
+}
+
+.investment-table tr:hover {
+    background: #f8f9fa;
+}
+
+.investment-table .text-success {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.investment-table .text-primary {
+    color: #3498db;
+    font-weight: 600;
+}
+
+.investment-table .text-purple {
+    color: #9b59b6;
+    font-weight: 700;
+}
