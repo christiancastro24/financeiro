@@ -92,6 +92,11 @@ body {
     margin-bottom: 35px;
 }
 
+a {
+    text-decoration: none;
+    color: #7f8c8d;
+}
+
 .header-title h2 {
     font-size: 28px;
     font-weight: 700;
