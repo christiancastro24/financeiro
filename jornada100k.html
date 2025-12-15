@@ -372,7 +372,7 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Saldo Atual</div>
-          <div class="stat-value" id="currentAmount">R$ 500</div>
+          <div class="stat-value" id="currentAmount">R$ 0</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Meta Final</div>
@@ -380,7 +380,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-label">Falta para Meta</div>
-          <div class="stat-value" id="remaining">R$ 99.500</div>
+          <div class="stat-value" id="remaining">R$ 100.000</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Meses Restantes</div>
@@ -391,7 +391,7 @@
       <div class="stats-grid">
         <div class="stat-card recommendation-card">
           <div class="stat-label">💡 Aporte Recomendado</div>
-          <div class="stat-value" id="recommendedDeposit">R$ 2.000</div>
+          <div class="stat-value" id="recommendedDeposit">R$ 0</div>
           <div class="stat-label" style="margin-top: 10px; font-size: 0.8em">
             Para manter o prazo
           </div>
@@ -402,7 +402,7 @@
         <h3><span class="emoji">⚙️</span>Configurações Iniciais</h3>
         <div class="input-group">
           <label for="startingBalance">Saldo Inicial (R$)</label>
-          <input type="number" id="startingBalance" value="500" min="0" />
+          <input type="number" id="startingBalance" value="0" min="0" />
         </div>
         <div class="input-group">
           <label for="targetMonths">Prazo Desejado (meses)</label>
@@ -643,15 +643,13 @@
         const data = {
           months: months,
           startingBalance: document.getElementById("startingBalance").value,
+          targetMonths: document.getElementById("targetMonths").value,
         };
-        const jsonData = JSON.stringify(data);
-        // Simulando localStorage já que não podemos usar no Claude
-        window.investmentData = jsonData;
+        localStorage.setItem("jornada100k", JSON.stringify(data));
       }
 
       function loadData() {
-        // Simulando localStorage já que não podemos usar no Claude
-        const saved = window.investmentData;
+        const saved = localStorage.getItem("jornada100k");
         if (saved) {
           const data = JSON.parse(saved);
           months = data.months.map((m) => ({
@@ -659,12 +657,18 @@
             date: new Date(m.date),
           }));
           document.getElementById("startingBalance").value =
-            data.startingBalance;
-          document.getElementById("targetMonths").value = months.length;
+            data.startingBalance || 0;
+          document.getElementById("targetMonths").value =
+            data.targetMonths || months.length;
           calculate();
           renderMonths();
         } else {
-          initialize();
+          // Não inicializa automaticamente, deixa zerado
+          months = [];
+          document.getElementById("currentAmount").textContent = "R$ 0";
+          document.getElementById("remaining").textContent = "R$ 100.000";
+          document.getElementById("monthsRemaining").textContent = "48";
+          document.getElementById("recommendedDeposit").textContent = "R$ 0";
         }
       }
 
@@ -674,7 +678,7 @@
             "Tem certeza que deseja resetar todos os dados? Isso não pode ser desfeito!"
           )
         ) {
-          window.investmentData = null;
+          localStorage.removeItem("jornada100k");
           location.reload();
         }
       }
