@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minha Aposentadoria aos 50</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      h1 {
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .card {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .card h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      .stat {
+        margin-bottom: 15px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .stat-value.highlight {
+        color: #667eea;
+      }
+
+      .stat-value.success {
+        color: #10b981;
+      }
+
+      .stat-value.warning {
+        color: #f59e0b;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 5px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border 0.3s;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .history {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .history-item {
+        padding: 15px;
+        border-left: 4px solid #667eea;
+        background: #f9fafb;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .history-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .history-info {
+        flex: 1;
+      }
+
+      .history-date {
+        font-size: 12px;
+        color: #666;
+      }
+
+      .history-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        margin-top: 5px;
+      }
+
+      .history-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-edit,
+      .btn-delete {
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+        background: transparent;
+      }
+
+      .btn-edit:hover {
+        background: #e0e7ff;
+        transform: scale(1.1);
+      }
+
+      .btn-delete:hover {
+        background: #fee2e2;
+        transform: scale(1.1);
+      }
+
+      .info-box {
+        padding: 12px;
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        border-radius: 5px;
+        font-size: 13px;
+        color: #1e40af;
+        margin-top: 15px;
+      }
+
+      .success-box {
+        background: #d1fae5;
+        border-left-color: #10b981;
+        color: #065f46;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎯 Minha Aposentadoria aos 50 Anos</h1>
+        <p class="subtitle">
+          Meta: R$ 3.000/mês em poder de compra • Início: março/2025
+        </p>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h3>📊 Situação Atual</h3>
+          <div class="stat">
+            <div class="stat-label">Patrimônio Acumulado</div>
+            <div class="stat-value highlight" id="currentBalance">R$ 0,00</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Aportes Realizados</div>
+            <div class="stat-value" id="totalContributed">R$ 0,00</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Rendimento até agora</div>
+            <div class="stat-value success" id="earnings">R$ 0,00</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🎯 Meta e Projeção</h3>
+          <div class="stat">
+            <div class="stat-label">Patrimônio Necessário</div>
+            <div class="stat-value">R$ 600.000</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Meses até março/2047</div>
+            <div class="stat-value" id="remainingMonths">264</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Parcela Ideal por Mês</div>
+            <div class="stat-value warning" id="idealMonthly">R$ 1.121,75</div>
+          </div>
+          <div class="info-box" id="infoMessage">
+            Deposite R$ 1.121,75/mês para atingir a meta
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>💰 Novo Aporte</h3>
+          <div class="input-group">
+            <label for="monthlyAmount">Valor do aporte (R$)</label>
+            <input
+              type="number"
+              id="monthlyAmount"
+              placeholder="Ex: 1500"
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <button onclick="addContribution()">💾 Registrar Aporte</button>
+        </div>
+
+        <div class="card">
+          <h3>⚙️ Configurações</h3>
+          <div class="input-group">
+            <label for="interestRate">Taxa real anual (%)</label>
+            <input
+              type="number"
+              id="interestRate"
+              value="6"
+              min="0"
+              max="20"
+              step="0.1"
+              onchange="updateUI()"
+            />
+          </div>
+          <div class="input-group">
+            <label for="targetIncome">Renda mensal desejada (R$)</label>
+            <input
+              type="number"
+              id="targetIncome"
+              value="3000"
+              min="0"
+              step="100"
+              onchange="updateUI()"
+            />
+          </div>
+          <button onclick="recalculate()">🔄 Recalcular Tudo</button>
+          <button
+            onclick="resetData()"
+            style="background: #ef4444; margin-top: 10px"
+          >
+            🗑️ Resetar Dados
+          </button>
+        </div>
+      </div>
+
+      <div class="history">
+        <h3 style="color: #667eea; margin-bottom: 20px">
+          📈 Histórico de Aportes
+        </h3>
+        <div id="historyContainer">
+          <p style="color: #666; text-align: center">
+            Nenhum aporte registrado ainda
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const TARGET_AMOUNT = 600000;
+      const END_DATE = new Date(2047, 2, 1); // março/2047
+
+      let data = {
+        contributions: [],
+        interestRate: 6,
+        targetIncome: 3000,
+      };
+
+      function loadData() {
+        try {
+          const saved = localStorage.getItem("retirementData2");
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            data.contributions = parsed.contributions.map((c) => ({
+              amount: parseFloat(c.amount),
+              date: new Date(c.date),
+            }));
+            data.interestRate = parseFloat(parsed.interestRate) || 6;
+            data.targetIncome = parseFloat(parsed.targetIncome) || 3000;
+
+            document.getElementById("interestRate").value = data.interestRate;
+            document.getElementById("targetIncome").value = data.targetIncome;
+          }
+        } catch (e) {
+          console.error("Erro ao carregar dados:", e);
+        }
+        updateUI();
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem("retirementData2", JSON.stringify(data));
+        } catch (e) {
+          console.error("Erro ao salvar dados:", e);
+        }
+      }
+
+      function addContribution() {
+        const amount = parseFloat(
+          document.getElementById("monthlyAmount").value
+        );
+
+        if (!amount || amount <= 0) {
+          alert("Digite um valor válido!");
+          return;
+        }
+
+        data.contributions.push({
+          amount: amount,
+          date: new Date(),
+        });
+
+        saveData();
+        updateUI();
+
+        document.getElementById("monthlyAmount").value = "";
+        alert("✅ Aporte registrado com sucesso!");
+      }
+
+      function getRemainingMonths() {
+        const now = new Date();
+        const years = END_DATE.getFullYear() - now.getFullYear();
+        const months = END_DATE.getMonth() - now.getMonth();
+        const total = years * 12 + months;
+        return Math.max(0, total);
+      }
+
+      function calculateCurrentBalance() {
+        const now = new Date();
+        const monthlyRate = Math.pow(1 + data.interestRate / 100, 1 / 12) - 1;
+        let balance = 0;
+
+        data.contributions.forEach((contribution) => {
+          const ageInDays = (now - contribution.date) / (1000 * 60 * 60 * 24);
+          const ageInMonths = ageInDays / 30.44;
+          balance +=
+            contribution.amount * Math.pow(1 + monthlyRate, ageInMonths);
+        });
+
+        return balance;
+      }
+
+      function calculateIdealMonthly() {
+        const remainingMonths = getRemainingMonths();
+
+        if (remainingMonths === 0) return 0;
+
+        const monthlyRate = Math.pow(1 + data.interestRate / 100, 1 / 12) - 1;
+        const currentBalance = calculateCurrentBalance();
+        const futureBalance =
+          currentBalance * Math.pow(1 + monthlyRate, remainingMonths);
+        const stillNeeded = TARGET_AMOUNT - futureBalance;
+
+        if (stillNeeded <= 0) return 0;
+
+        const idealPayment =
+          (stillNeeded * monthlyRate) /
+          (Math.pow(1 + monthlyRate, remainingMonths) - 1);
+
+        return Math.max(0, idealPayment);
+      }
+
+      function updateUI() {
+        data.interestRate = parseFloat(
+          document.getElementById("interestRate").value
+        );
+        data.targetIncome = parseFloat(
+          document.getElementById("targetIncome").value
+        );
+
+        const currentBalance = calculateCurrentBalance();
+        const totalContributed = data.contributions.reduce(
+          (sum, c) => sum + c.amount,
+          0
+        );
+        const earnings = currentBalance - totalContributed;
+        const remainingMonths = getRemainingMonths();
+        const idealMonthly = calculateIdealMonthly();
+
+        document.getElementById("currentBalance").textContent =
+          currentBalance.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+        document.getElementById("totalContributed").textContent =
+          totalContributed.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+        document.getElementById("earnings").textContent =
+          earnings.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+        document.getElementById("remainingMonths").textContent =
+          remainingMonths;
+
+        document.getElementById("idealMonthly").textContent =
+          idealMonthly.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          });
+
+        const infoBox = document.getElementById("infoMessage");
+        if (idealMonthly === 0) {
+          infoBox.textContent = "🎉 Parabéns! Você já atingiu a meta!";
+          infoBox.className = "info-box success-box";
+        } else {
+          infoBox.textContent = `Deposite R$ ${idealMonthly.toFixed(
+            2
+          )}/mês pelos próximos ${remainingMonths} meses para atingir R$ 600.000`;
+          infoBox.className = "info-box";
+        }
+
+        updateHistory();
+      }
+
+      function updateHistory() {
+        const container = document.getElementById("historyContainer");
+
+        if (data.contributions.length === 0) {
+          container.innerHTML =
+            '<p style="color: #666; text-align: center;">Nenhum aporte registrado ainda</p>';
+          return;
+        }
+
+        const sorted = [...data.contributions].sort((a, b) => b.date - a.date);
+
+        container.innerHTML = sorted
+          .map((c, index) => {
+            const originalIndex = data.contributions.findIndex(
+              (contrib) =>
+                contrib.date.getTime() === c.date.getTime() &&
+                contrib.amount === c.amount
+            );
+
+            return `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-date">${c.date.toLocaleDateString(
+                          "pt-BR",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}</div>
+                        <div class="history-value">${c.amount.toLocaleString(
+                          "pt-BR",
+                          { style: "currency", currency: "BRL" }
+                        )}</div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn-edit" onclick="editContribution(${originalIndex})" title="Editar">✏️</button>
+                        <button class="btn-delete" onclick="deleteContribution(${originalIndex})" title="Remover">🗑️</button>
+                    </div>
+                </div>
+            `;
+          })
+          .join("");
+      }
+
+      function editContribution(index) {
+        const contribution = data.contributions[index];
+        const newAmount = prompt(
+          "Digite o novo valor do aporte:",
+          contribution.amount.toFixed(2)
+        );
+
+        if (newAmount === null) return; // Cancelou
+
+        const amount = parseFloat(newAmount);
+
+        if (!amount || amount <= 0) {
+          alert("❌ Valor inválido!");
+          return;
+        }
+
+        data.contributions[index].amount = amount;
+        saveData();
+        updateUI();
+        alert("✅ Aporte editado com sucesso!");
+      }
+
+      function deleteContribution(index) {
+        const contribution = data.contributions[index];
+        const confirmDelete = confirm(
+          `⚠️ Deseja realmente remover o aporte de ${contribution.amount.toLocaleString(
+            "pt-BR",
+            { style: "currency", currency: "BRL" }
+          )}?\n\nData: ${contribution.date.toLocaleDateString("pt-BR")}`
+        );
+
+        if (!confirmDelete) return;
+
+        data.contributions.splice(index, 1);
+        saveData();
+        updateUI();
+        alert("🗑️ Aporte removido com sucesso!");
+      }
+
+      function recalculate() {
+        saveData();
+        updateUI();
+        alert("✅ Recálculo realizado com sucesso!");
+      }
+
+      function resetData() {
+        if (
+          confirm(
+            "⚠️ Tem certeza que deseja apagar todos os dados? Esta ação não pode ser desfeita!"
+          )
+        ) {
+          localStorage.removeItem("retirementData2");
+          data = {
+            contributions: [],
+            interestRate: 6,
+            targetIncome: 3000,
+          };
+          document.getElementById("interestRate").value = 6;
+          document.getElementById("targetIncome").value = 3000;
+          updateUI();
+          alert("🗑️ Dados resetados!");
+        }
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>
