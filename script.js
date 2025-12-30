@@ -1743,33 +1743,44 @@ function closeDreamModal() {
 
 function saveDream(e) {
   e.preventDefault();
-  e.stopPropagation(); // Adicionado para evitar problemas de propagação
 
   const form = document.getElementById("dreamForm");
-  if (!form.checkValidity()) {
-    form.reportValidity();
+  if (!form) return;
+
+  // Validar campos obrigatórios
+  const name = document.getElementById("dreamName")?.value.trim();
+  const target = document.getElementById("dreamTarget")?.value;
+
+  if (!name) {
+    alert("Por favor, digite um nome para o sonho.");
     return;
   }
 
-  const imageUrl = document.getElementById("dreamImageUrl").value;
+  if (!target || parseFloat(target) <= 0) {
+    alert("Por favor, digite um valor meta válido.");
+    return;
+  }
+
+  const imageUrl = document.getElementById("dreamImageUrl")?.value || "";
   const finalImage = imageUrl || currentDreamImage;
 
   const dreamData = {
     id: editingDreamId || Date.now().toString(),
-    type: document.getElementById("dreamType").value,
-    name: document.getElementById("dreamName").value.trim(),
-    target: parseFloat(document.getElementById("dreamTarget").value) || 0,
-    current: parseFloat(document.getElementById("dreamCurrent").value) || 0,
-    targetDate: document.getElementById("dreamDate").value || null,
-    description: document.getElementById("dreamDescription").value.trim(),
+    type: document.getElementById("dreamType")?.value || "other",
+    name: name,
+    target: parseFloat(target) || 0,
+    current: parseFloat(document.getElementById("dreamCurrent")?.value) || 0,
+    targetDate: document.getElementById("dreamDate")?.value || null,
+    description:
+      document.getElementById("dreamDescription")?.value?.trim() || "",
     image: finalImage || null,
-    country: document.getElementById("dreamCountry").value || null,
-    city: document.getElementById("dreamCity").value || null,
+    country: document.getElementById("dreamCountry")?.value || null,
+    city: document.getElementById("dreamCity")?.value || null,
     createdAt: new Date().toISOString(),
     history: [],
   };
 
-  console.log("Salvando sonho:", dreamData); // Para debug
+  console.log("Salvando sonho:", dreamData);
 
   if (editingDreamId) {
     // Editando sonho existente
@@ -1779,17 +1790,23 @@ function saveDream(e) {
       dreamData.history = dreams[index].history || [];
       dreamData.createdAt = dreams[index].createdAt || dreamData.createdAt;
       dreams[index] = dreamData;
+      console.log("Sonho editado:", dreamData);
+    } else {
+      dreams.push(dreamData);
+      console.log("Novo sonho criado (edição falhou):", dreamData);
     }
   } else {
     // Novo sonho
     dreams.push(dreamData);
+    console.log("Novo sonho criado:", dreamData);
   }
 
+  // Salvar e renderizar
   saveDreams();
   renderDreams();
   closeDreamModal();
 
-  // Mostra feedback visual
+  // Mostra feedback
   showToast("Sonho salvo com sucesso! ✨");
 }
 
