@@ -194,7 +194,13 @@ function switchTab(tab) {
   // Controlar visibilidade do seletor de mês
   const monthSelector = document.getElementById("monthSelector");
   if (monthSelector) {
-    if (tab === "jornada100k" || tab === "analytics" || tab === "retirement") {
+    // ⬇️ ADICIONADO "dreams" AQUI
+    if (
+      tab === "jornada100k" ||
+      tab === "analytics" ||
+      tab === "retirement" ||
+      tab === "dreams"
+    ) {
       monthSelector.classList.add("hidden");
     } else {
       monthSelector.classList.remove("hidden");
@@ -209,6 +215,7 @@ function switchTab(tab) {
     investments: "Investimentos",
     retirement: "Aposentadoria",
     jornada100k: "Jornada 100k",
+    dreams: "Metas & Sonhos", // ⬅️ ADICIONADO
   };
   document.getElementById("pageTitle").textContent = titles[tab];
 
@@ -223,6 +230,9 @@ function switchTab(tab) {
   } else if (tab === "investments") {
     updateInvestmentsSummary();
     updateSimulator();
+  } else if (tab === "dreams") {
+    // ⬅️ ADICIONADO
+    initDreams();
   }
 }
 
@@ -1409,3 +1419,579 @@ function updateIncomeExpenseChart() {
     },
   });
 }
+
+// ========== METAS & SONHOS - JAVASCRIPT ==========
+
+// Frases motivacionais
+const motivationalQuotes = [
+  "Sonhos não morrem, apenas adormecem na alma da gente. 💫",
+  "O sucesso é a soma de pequenos esforços repetidos dia após dia. 🌟",
+  "Acredite em você mesmo e tudo será possível. ✨",
+  "Seus sonhos estão esperando por você do outro lado do medo. 🚀",
+  "Cada centavo economizado é um passo mais perto do seu sonho. 💰",
+  "O futuro pertence àqueles que acreditam na beleza de seus sonhos. 🌈",
+  "Não importa quão devagar você vá, desde que não pare. 🎯",
+  "Grandes conquistas requerem grandes ambições. 🏆",
+  "Você é mais forte do que imagina. Continue! 💪",
+  "O melhor momento para começar foi ontem. O segundo melhor é agora. ⏰",
+];
+
+// Mapas de países (coordenadas para o mapa)
+const countryCoordinates = {
+  BR: { lat: -14.235, lng: -51.9253, name: "Brasil" },
+  US: { lat: 37.0902, lng: -95.7129, name: "Estados Unidos" },
+  FR: { lat: 46.2276, lng: 2.2137, name: "França" },
+  IT: { lat: 41.8719, lng: 12.5674, name: "Itália" },
+  ES: { lat: 40.4637, lng: -3.7492, name: "Espanha" },
+  PT: { lat: 39.3999, lng: -8.2245, name: "Portugal" },
+  GB: { lat: 55.3781, lng: -3.436, name: "Reino Unido" },
+  DE: { lat: 51.1657, lng: 10.4515, name: "Alemanha" },
+  JP: { lat: 36.2048, lng: 138.2529, name: "Japão" },
+  AU: { lat: -25.2744, lng: 133.7751, name: "Austrália" },
+  CA: { lat: 56.1304, lng: -106.3468, name: "Canadá" },
+  MX: { lat: 23.6345, lng: -102.5528, name: "México" },
+  AR: { lat: -38.4161, lng: -63.6167, name: "Argentina" },
+  CL: { lat: -35.6751, lng: -71.543, name: "Chile" },
+  GR: { lat: 39.0742, lng: 21.8243, name: "Grécia" },
+  TH: { lat: 15.87, lng: 100.9925, name: "Tailândia" },
+  NZ: { lat: -40.9006, lng: 174.886, name: "Nova Zelândia" },
+};
+
+let dreams = [];
+let editingDreamId = null;
+let currentDreamImage = null;
+
+// ========== INICIALIZAÇÃO ==========
+function initDreams() {
+  console.log("Inicializando aba de sonhos...");
+  loadDreams();
+  displayDailyMotivation();
+  renderDreams();
+  setupDreamListeners();
+}
+
+// ========== CARREGAR DADOS ==========
+function loadDreams() {
+  const saved = localStorage.getItem("dreams");
+  if (saved) {
+    dreams = JSON.parse(saved);
+  }
+}
+
+// ========== SALVAR DADOS ==========
+function saveDreams() {
+  localStorage.setItem("dreams", JSON.stringify(dreams));
+}
+
+// ========== FRASE MOTIVACIONAL DIÁRIA ==========
+function displayDailyMotivation() {
+  const today = new Date().toDateString();
+  const savedDate = localStorage.getItem("motivationDate");
+  let quoteIndex = localStorage.getItem("motivationIndex");
+
+  if (savedDate !== today || !quoteIndex) {
+    quoteIndex = Math.floor(Math.random() * motivationalQuotes.length);
+    localStorage.setItem("motivationDate", today);
+    localStorage.setItem("motivationIndex", quoteIndex);
+  }
+
+  const quote = motivationalQuotes[quoteIndex];
+  document.getElementById("dailyMotivation").textContent = quote;
+}
+
+// ========== RENDERIZAR SONHOS ==========
+function renderDreams() {
+  const grid = document.getElementById("dreamsGrid");
+  const empty = document.getElementById("dreamsEmpty");
+
+  if (dreams.length === 0) {
+    grid.style.display = "none";
+    empty.style.display = "block";
+    return;
+  }
+
+  grid.style.display = "grid";
+  empty.style.display = "none";
+
+  grid.innerHTML = dreams
+    .map((dream) => {
+      const progress = (dream.current / dream.target) * 100;
+      const remaining = dream.target - dream.current;
+
+      const typeIcons = {
+        travel: "🌍",
+        purchase: "🛍️",
+        savings: "💰",
+        investment: "📈",
+        education: "📚",
+        other: "⭐",
+      };
+
+      const typeLabels = {
+        travel: "Viagem",
+        purchase: "Compra",
+        savings: "Poupança",
+        investment: "Investimento",
+        education: "Educação",
+        other: "Outro",
+      };
+
+      return `
+      <div class="dream-card" onclick="openDreamDetail('${dream.id}')">
+        <div class="dream-card-image ${dream.image ? "" : "placeholder"}">
+          ${
+            dream.image
+              ? `<img src="${dream.image}" alt="${dream.name}">`
+              : typeIcons[dream.type]
+          }
+          <div class="dream-type-badge">
+            ${typeIcons[dream.type]} ${typeLabels[dream.type]}
+          </div>
+        </div>
+        
+        <div class="dream-card-content">
+          <div class="dream-card-header">
+            <h3 class="dream-card-title">${dream.name}</h3>
+            ${
+              dream.country
+                ? `
+              <div class="dream-card-location">
+                📍 ${dream.city || ""} ${
+                    dream.city && dream.country ? "•" : ""
+                  } ${countryCoordinates[dream.country]?.name || ""}
+              </div>
+            `
+                : ""
+            }
+          </div>
+          
+          <div class="dream-progress">
+            <div class="dream-progress-header">
+              <span class="dream-progress-current">R$ ${formatCurrency(
+                dream.current
+              )}</span>
+              <span class="dream-progress-target">R$ ${formatCurrency(
+                dream.target
+              )}</span>
+            </div>
+            <div class="dream-progress-bar">
+              <div class="dream-progress-fill" style="width: ${Math.min(
+                progress,
+                100
+              )}%"></div>
+            </div>
+            <div class="dream-progress-percentage">${progress.toFixed(
+              1
+            )}% conquistado</div>
+          </div>
+          
+          <div class="dream-card-footer">
+            <div class="dream-remaining">
+              Falta: <strong>R$ ${formatCurrency(remaining)}</strong>
+            </div>
+            ${
+              dream.targetDate
+                ? `
+              <div class="dream-date">
+                📅 ${new Date(dream.targetDate).toLocaleDateString("pt-BR")}
+              </div>
+            `
+                : ""
+            }
+          </div>
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+// ========== SETUP EVENT LISTENERS ==========
+function setupDreamListeners() {
+  // Botão adicionar sonho
+  document
+    .getElementById("addDreamBtn")
+    ?.addEventListener("click", openDreamModal);
+
+  // Fechar modais
+  document
+    .getElementById("closeDreamModalBtn")
+    ?.addEventListener("click", closeDreamModal);
+  document
+    .getElementById("closeDreamDetailBtn")
+    ?.addEventListener("click", closeDreamDetailModal);
+  document
+    .getElementById("closeAddAmountBtn")
+    ?.addEventListener("click", closeAddAmountModal);
+
+  // Form de sonho
+  document.getElementById("dreamForm")?.addEventListener("submit", saveDream);
+
+  // Tipo de sonho (mostrar seção de viagem)
+  document.getElementById("dreamType")?.addEventListener("change", (e) => {
+    const travelSection = document.getElementById("travelSection");
+    travelSection.style.display =
+      e.target.value === "travel" ? "block" : "none";
+  });
+
+  // Upload de imagem
+  document.getElementById("uploadImageBtn")?.addEventListener("click", () => {
+    document.getElementById("dreamImage").click();
+  });
+
+  document
+    .getElementById("dreamImage")
+    ?.addEventListener("change", handleImageUpload);
+
+  // Form adicionar valor
+  document
+    .getElementById("addAmountForm")
+    ?.addEventListener("submit", saveAmount);
+
+  // Botão adicionar valor no detalhe
+  document.getElementById("addAmountBtn")?.addEventListener("click", () => {
+    closeDreamDetailModal();
+    openAddAmountModal();
+  });
+
+  // Fechar modal ao clicar fora
+  document.getElementById("dreamModal")?.addEventListener("click", (e) => {
+    if (e.target.id === "dreamModal") closeDreamModal();
+  });
+
+  document
+    .getElementById("dreamDetailModal")
+    ?.addEventListener("click", (e) => {
+      if (e.target.id === "dreamDetailModal") closeDreamDetailModal();
+    });
+
+  document.getElementById("addAmountModal")?.addEventListener("click", (e) => {
+    if (e.target.id === "addAmountModal") closeAddAmountModal();
+  });
+}
+
+// ========== UPLOAD DE IMAGEM ==========
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    currentDreamImage = event.target.result;
+    showImagePreview(currentDreamImage);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showImagePreview(src) {
+  const preview = document.getElementById("imagePreview");
+  preview.innerHTML = `<img src="${src}" alt="Preview">`;
+  preview.classList.add("active");
+}
+
+// ========== MODAL DE SONHO ==========
+function openDreamModal(dreamId = null) {
+  editingDreamId = dreamId;
+  currentDreamImage = null;
+
+  const modal = document.getElementById("dreamModal");
+  const title = document.getElementById("dreamModalTitle");
+  const form = document.getElementById("dreamForm");
+
+  form.reset();
+  document.getElementById("imagePreview").classList.remove("active");
+  document.getElementById("travelSection").style.display = "none";
+
+  if (dreamId) {
+    const dream = dreams.find((d) => d.id === dreamId);
+    if (dream) {
+      title.textContent = "✏️ Editar Sonho";
+      document.getElementById("dreamType").value = dream.type;
+      document.getElementById("dreamName").value = dream.name;
+      document.getElementById("dreamTarget").value = dream.target;
+      document.getElementById("dreamCurrent").value = dream.current;
+      document.getElementById("dreamDate").value = dream.targetDate || "";
+      document.getElementById("dreamDescription").value =
+        dream.description || "";
+
+      if (dream.type === "travel") {
+        document.getElementById("travelSection").style.display = "block";
+        document.getElementById("dreamCountry").value = dream.country || "";
+        document.getElementById("dreamCity").value = dream.city || "";
+      }
+
+      if (dream.image) {
+        currentDreamImage = dream.image;
+        showImagePreview(dream.image);
+      }
+    }
+  } else {
+    title.textContent = "✨ Novo Sonho";
+  }
+
+  modal.classList.add("active");
+}
+
+function closeDreamModal() {
+  document.getElementById("dreamModal").classList.remove("active");
+  editingDreamId = null;
+  currentDreamImage = null;
+}
+
+// ========== SALVAR SONHO ==========
+// SUBSTITUA a função saveDream no seu script.js por esta versão corrigida:
+
+function saveDream(e) {
+  e.preventDefault();
+  e.stopPropagation(); // Adicionado para evitar problemas de propagação
+
+  const form = document.getElementById("dreamForm");
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  const imageUrl = document.getElementById("dreamImageUrl").value;
+  const finalImage = imageUrl || currentDreamImage;
+
+  const dreamData = {
+    id: editingDreamId || Date.now().toString(),
+    type: document.getElementById("dreamType").value,
+    name: document.getElementById("dreamName").value.trim(),
+    target: parseFloat(document.getElementById("dreamTarget").value) || 0,
+    current: parseFloat(document.getElementById("dreamCurrent").value) || 0,
+    targetDate: document.getElementById("dreamDate").value || null,
+    description: document.getElementById("dreamDescription").value.trim(),
+    image: finalImage || null,
+    country: document.getElementById("dreamCountry").value || null,
+    city: document.getElementById("dreamCity").value || null,
+    createdAt: new Date().toISOString(),
+    history: [],
+  };
+
+  console.log("Salvando sonho:", dreamData); // Para debug
+
+  if (editingDreamId) {
+    // Editando sonho existente
+    const index = dreams.findIndex((d) => d.id === editingDreamId);
+    if (index !== -1) {
+      // Preserva histórico e data de criação
+      dreamData.history = dreams[index].history || [];
+      dreamData.createdAt = dreams[index].createdAt || dreamData.createdAt;
+      dreams[index] = dreamData;
+    }
+  } else {
+    // Novo sonho
+    dreams.push(dreamData);
+  }
+
+  saveDreams();
+  renderDreams();
+  closeDreamModal();
+
+  // Mostra feedback visual
+  showToast("Sonho salvo com sucesso! ✨");
+}
+
+// Adiciona função de toast para feedback
+function showToast(message) {
+  const toast = document.createElement("div");
+  toast.className = "toast-message";
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #27ae60;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+  `;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.animation = "slideOut 0.3s ease";
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// Adiciona animações CSS para o toast
+const style = document.createElement("style");
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+// ========== MODAL DE DETALHES ==========
+function openDreamDetail(dreamId) {
+  const dream = dreams.find((d) => d.id === dreamId);
+  if (!dream) return;
+
+  editingDreamId = dreamId;
+
+  const modal = document.getElementById("dreamDetailModal");
+  const header = document.getElementById("dreamDetailHeader");
+  const body = document.getElementById("dreamDetailBody");
+
+  const progress = (dream.current / dream.target) * 100;
+  const remaining = dream.target - dream.current;
+
+  // Header
+  header.innerHTML = `
+    ${
+      dream.image
+        ? `<img src="${dream.image}" alt="${dream.name}">`
+        : '<div style="font-size: 80px;">🌟</div>'
+    }
+    <div class="dream-detail-overlay">
+      <h2 class="dream-detail-title">${dream.name}</h2>
+      ${
+        dream.country
+          ? `<div class="dream-detail-location">📍 ${dream.city || ""} ${
+              countryCoordinates[dream.country]?.name || ""
+            }</div>`
+          : ""
+      }
+    </div>
+  `;
+
+  // Body
+  body.innerHTML = `
+    ${
+      dream.description
+        ? `<p style="color: #8b92a7; margin-bottom: 24px;">${dream.description}</p>`
+        : ""
+    }
+    
+    <div class="dream-detail-stats">
+      <div class="dream-stat-card">
+        <div class="dream-stat-label">Meta</div>
+        <div class="dream-stat-value">R$ ${formatCurrency(dream.target)}</div>
+      </div>
+      <div class="dream-stat-card">
+        <div class="dream-stat-label">Economizado</div>
+        <div class="dream-stat-value success">R$ ${formatCurrency(
+          dream.current
+        )}</div>
+      </div>
+      <div class="dream-stat-card">
+        <div class="dream-stat-label">Falta</div>
+        <div class="dream-stat-value warning">R$ ${formatCurrency(
+          remaining
+        )}</div>
+      </div>
+    </div>
+    
+    <div class="dream-detail-progress">
+      <div class="dream-progress-header">
+        <span style="color: #8b92a7;">Progresso</span>
+        <span style="color: #27ae60; font-weight: 700;">${progress.toFixed(
+          1
+        )}%</span>
+      </div>
+      <div class="dream-progress-bar" style="height: 16px;">
+        <div class="dream-progress-fill" style="width: ${Math.min(
+          progress,
+          100
+        )}%"></div>
+      </div>
+    </div>
+    
+    ${
+      dream.targetDate
+        ? `
+      <div style="text-align: center; margin: 20px 0; padding: 12px; background: #1e2738; border-radius: 8px;">
+        <span style="color: #8b92a7;">Data Alvo: </span>
+        <strong style="color: #ffffff;">${new Date(
+          dream.targetDate
+        ).toLocaleDateString("pt-BR")}</strong>
+      </div>
+    `
+        : ""
+    }
+    
+    <div style="display: flex; gap: 12px; margin-top: 20px;">
+      <button class="btn" onclick="editDream('${
+        dream.id
+      }')" style="flex: 1;">✏️ Editar</button>
+      <button class="btn btn-danger" onclick="deleteDream('${
+        dream.id
+      }')" style="flex: 1;">🗑️ Excluir</button>
+    </div>
+  `;
+
+  modal.classList.add("active");
+}
+
+function closeDreamDetailModal() {
+  document.getElementById("dreamDetailModal").classList.remove("active");
+}
+
+// ========== EDITAR SONHO ==========
+function editDream(dreamId) {
+  closeDreamDetailModal();
+  openDreamModal(dreamId);
+}
+
+// ========== DELETAR SONHO ==========
+function deleteDream(dreamId) {
+  if (!confirm("Tem certeza que deseja excluir este sonho?")) return;
+
+  dreams = dreams.filter((d) => d.id !== dreamId);
+  saveDreams();
+  renderDreams();
+  closeDreamDetailModal();
+}
+
+// ========== MODAL ADICIONAR VALOR ==========
+function openAddAmountModal() {
+  const modal = document.getElementById("addAmountModal");
+  document.getElementById("addAmountForm").reset();
+  document.getElementById("addAmountDate").value = new Date()
+    .toISOString()
+    .split("T")[0];
+  modal.classList.add("active");
+}
+
+function closeAddAmountModal() {
+  document.getElementById("addAmountModal").classList.remove("active");
+}
+
+function saveAmount(e) {
+  e.preventDefault();
+
+  if (!editingDreamId) return;
+
+  const amount = parseFloat(document.getElementById("addAmountValue").value);
+  const date = document.getElementById("addAmountDate").value;
+
+  const dream = dreams.find((d) => d.id === editingDreamId);
+  if (dream) {
+    dream.current += amount;
+    dream.history = dream.history || [];
+    dream.history.push({
+      amount,
+      date,
+      timestamp: new Date().toISOString(),
+    });
+
+    saveDreams();
+    renderDreams();
+    closeAddAmountModal();
+  }
+}
+
+// ========== INICIALIZAR QUANDO A ABA FOR ABERTA ==========
+// Adicione no switchTab() do script.js:
+// if (tab === 'dreams') { initDreams(); }

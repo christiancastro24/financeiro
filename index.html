@@ -471,6 +471,516 @@
           font-size: 16px;
         }
       }
+
+      /* ========== METAS & SONHOS - ESTILOS ========== */
+
+      .dreams-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+
+      /* Header com Frase Motivacional */
+      .dreams-header {
+        margin-bottom: 30px;
+      }
+
+      .motivation-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .motivation-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+      }
+
+      .motivation-icon {
+        font-size: 48px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .motivation-content {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+      }
+
+      .motivation-title {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      .motivation-text {
+        font-size: 20px;
+        color: white;
+        font-weight: 500;
+        line-height: 1.6;
+        font-style: italic;
+      }
+
+      /* Ações */
+      .dreams-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 30px;
+      }
+
+      .dreams-actions .btn-primary {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+      }
+
+      /* Grid de Sonhos */
+      .dreams-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+
+      /* Card de Sonho */
+      .dream-card {
+        background: #1a1f2e;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 1px solid #2a2f3e;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .dream-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        border-color: #667eea;
+      }
+
+      .dream-card-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 64px;
+        position: relative;
+      }
+
+      .dream-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .dream-card-image.placeholder {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .dream-type-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .dream-card-content {
+        padding: 24px;
+      }
+
+      .dream-card-header {
+        margin-bottom: 16px;
+      }
+
+      .dream-card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .dream-card-location {
+        font-size: 13px;
+        color: #8b92a7;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .dream-progress {
+        margin: 20px 0;
+      }
+
+      .dream-progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .dream-progress-current {
+        color: #27ae60;
+        font-weight: 700;
+      }
+
+      .dream-progress-target {
+        color: #8b92a7;
+      }
+
+      .dream-progress-bar {
+        height: 12px;
+        background: #252b3b;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .dream-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+        border-radius: 20px;
+        transition: width 1s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .dream-progress-fill::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .dream-progress-percentage {
+        font-size: 12px;
+        color: #8b92a7;
+        margin-top: 6px;
+        text-align: center;
+      }
+
+      .dream-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        border-top: 1px solid #2a2f3e;
+      }
+
+      .dream-remaining {
+        font-size: 13px;
+        color: #8b92a7;
+      }
+
+      .dream-remaining strong {
+        color: #f39c12;
+        font-size: 16px;
+      }
+
+      .dream-date {
+        font-size: 12px;
+        color: #8b92a7;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .dream-actions-btns {
+        display: flex;
+        gap: 8px;
+      }
+
+      .dream-btn {
+        background: transparent;
+        border: none;
+        color: #8b92a7;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .dream-btn:hover {
+        background: #252b3b;
+        transform: scale(1.1);
+      }
+
+      .dream-btn.edit:hover {
+        color: #5b8def;
+      }
+
+      .dream-btn.delete:hover {
+        color: #e74c3c;
+      }
+
+      /* Estado Vazio */
+      .dreams-empty {
+        text-align: center;
+        padding: 80px 20px;
+        background: #1a1f2e;
+        border-radius: 16px;
+        border: 2px dashed #2a2f3e;
+      }
+
+      .dreams-empty-icon {
+        font-size: 72px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .dreams-empty h3 {
+        color: #ffffff;
+        margin-bottom: 12px;
+        font-size: 20px;
+      }
+
+      .dreams-empty p {
+        color: #8b92a7;
+        font-size: 14px;
+      }
+
+      /* Modal de Sonho */
+      .dream-modal-content {
+        max-width: 600px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      /* Upload de Imagem */
+      .image-upload-container {
+        margin-bottom: 12px;
+      }
+
+      .btn-upload {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: #252b3b;
+        border: 2px dashed #2a2f3e;
+        border-radius: 8px;
+        color: #8b92a7;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .btn-upload:hover {
+        border-color: #5b8def;
+        color: #5b8def;
+        background: rgba(91, 141, 239, 0.1);
+      }
+
+      .image-preview {
+        margin-top: 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        max-height: 200px;
+        display: none;
+      }
+
+      .image-preview.active {
+        display: block;
+      }
+
+      .image-preview img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+
+      /* Modal de Detalhes */
+      .dream-detail-modal {
+        max-width: 700px;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .dream-detail-header {
+        height: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dream-detail-header img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .dream-detail-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 24px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      }
+
+      .dream-detail-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 8px;
+      }
+
+      .dream-detail-location {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+      }
+
+      .dream-detail-body {
+        padding: 32px;
+      }
+
+      .dream-detail-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .dream-stat-card {
+        background: #1e2738;
+        padding: 16px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #2a2f3e;
+      }
+
+      .dream-stat-label {
+        font-size: 12px;
+        color: #8b92a7;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .dream-stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .dream-stat-value.success {
+        color: #27ae60;
+      }
+
+      .dream-stat-value.warning {
+        color: #f39c12;
+      }
+
+      .dream-detail-progress {
+        margin: 24px 0;
+      }
+
+      .dream-detail-actions {
+        padding: 24px 32px;
+        border-top: 1px solid #2a2f3e;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+      }
+
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .dreams-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .motivation-card {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .dream-detail-stats {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -508,6 +1018,11 @@
         <div class="nav-item" data-tab="jornada100k">
           <span class="nav-icon">🚀</span>
           <span>Jornada 100k</span>
+        </div>
+
+        <div class="nav-item" data-tab="dreams">
+          <span class="nav-icon">✨</span>
+          <span>Metas & Sonhos</span>
         </div>
       </div>
     </div>
@@ -1057,6 +1572,234 @@
                 🔄 Resetar Tudo
               </button>
             </div>
+          </div>
+        </div>
+
+        <div id="dreams" class="tab-content">
+          <div class="dreams-container">
+            <!-- Header com Frase Motivacional -->
+            <div class="dreams-header">
+              <div class="motivation-card">
+                <div class="motivation-icon">💫</div>
+                <div class="motivation-content">
+                  <h3 class="motivation-title">Frase do Dia</h3>
+                  <p class="motivation-text" id="dailyMotivation">
+                    Carregando...
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botão Adicionar Novo Sonho -->
+            <div class="dreams-actions">
+              <button class="btn btn-primary" id="addDreamBtn">
+                <span>✨</span> Adicionar Novo Sonho
+              </button>
+            </div>
+
+            <!-- Grid de Sonhos -->
+            <div class="dreams-grid" id="dreamsGrid">
+              <!-- Os cards serão inseridos aqui via JavaScript -->
+            </div>
+
+            <!-- Estado Vazio -->
+            <div class="dreams-empty" id="dreamsEmpty">
+              <div class="dreams-empty-icon">🌟</div>
+              <h3>Nenhum sonho cadastrado ainda</h3>
+              <p>Comece agora a planejar seus objetivos e conquistas!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal de Adicionar/Editar Sonho -->
+        <div class="modal" id="dreamModal">
+          <div class="modal-content dream-modal-content">
+            <h2 id="dreamModalTitle">✨ Novo Sonho</h2>
+
+            <form id="dreamForm">
+              <!-- Tipo de Sonho -->
+              <div class="form-group">
+                <label>Tipo de Sonho</label>
+                <select id="dreamType" required>
+                  <option value="">Selecione...</option>
+                  <option value="travel">🌍 Viagem</option>
+                  <option value="purchase">🛍️ Compra</option>
+                  <option value="savings">💰 Poupança</option>
+                  <option value="investment">📈 Investimento</option>
+                  <option value="education">📚 Educação</option>
+                  <option value="other">⭐ Outro</option>
+                </select>
+              </div>
+
+              <!-- Nome do Sonho -->
+              <div class="form-group">
+                <label>Nome do Sonho</label>
+                <input
+                  type="text"
+                  id="dreamName"
+                  placeholder="Ex: Viagem para Paris"
+                  required
+                />
+              </div>
+
+              <!-- Seção de Viagem (aparece só se tipo = travel) -->
+              <div id="travelSection" style="display: none">
+                <div class="form-group">
+                  <label>País de Destino</label>
+                  <select id="dreamCountry">
+                    <option value="">Selecione um país...</option>
+                    <option value="BR">🇧🇷 Brasil</option>
+                    <option value="US">🇺🇸 Estados Unidos</option>
+                    <option value="FR">🇫🇷 França</option>
+                    <option value="IT">🇮🇹 Itália</option>
+                    <option value="ES">🇪🇸 Espanha</option>
+                    <option value="PT">🇵🇹 Portugal</option>
+                    <option value="GB">🇬🇧 Reino Unido</option>
+                    <option value="DE">🇩🇪 Alemanha</option>
+                    <option value="JP">🇯🇵 Japão</option>
+                    <option value="AU">🇦🇺 Austrália</option>
+                    <option value="CA">🇨🇦 Canadá</option>
+                    <option value="MX">🇲🇽 México</option>
+                    <option value="AR">🇦🇷 Argentina</option>
+                    <option value="CL">🇨🇱 Chile</option>
+                    <option value="GR">🇬🇷 Grécia</option>
+                    <option value="TH">🇹🇭 Tailândia</option>
+                    <option value="NZ">🇳🇿 Nova Zelândia</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Cidade</label>
+                  <input type="text" id="dreamCity" placeholder="Ex: Paris" />
+                </div>
+              </div>
+
+              <!-- Upload de Imagem -->
+              <div class="form-group">
+                <label>Imagem do Sonho (opcional)</label>
+                <div class="image-upload-container">
+                  <input
+                    type="file"
+                    id="dreamImage"
+                    accept="image/*"
+                    style="display: none"
+                  />
+                  <button type="button" class="btn-upload" id="uploadImageBtn">
+                    📷 Escolher Imagem
+                  </button>
+                  <div id="imagePreview" class="image-preview"></div>
+                </div>
+                <small style="color: #8b92a7">Ou cole uma URL de imagem:</small>
+                <input
+                  type="url"
+                  id="dreamImageUrl"
+                  placeholder="https://..."
+                  style="margin-top: 8px"
+                />
+              </div>
+
+              <!-- Valores -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Valor Total (R$)</label>
+                  <input
+                    type="number"
+                    id="dreamTarget"
+                    step="0.01"
+                    min="0"
+                    placeholder="0,00"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Valor Já Economizado (R$)</label>
+                  <input
+                    type="number"
+                    id="dreamCurrent"
+                    step="0.01"
+                    min="0"
+                    placeholder="0,00"
+                    value="0"
+                  />
+                </div>
+              </div>
+
+              <!-- Data Alvo -->
+              <div class="form-group">
+                <label>Data Alvo (opcional)</label>
+                <input type="date" id="dreamDate" />
+              </div>
+
+              <!-- Descrição -->
+              <div class="form-group">
+                <label>Descrição (opcional)</label>
+                <textarea
+                  id="dreamDescription"
+                  rows="3"
+                  placeholder="Descreva seu sonho..."
+                ></textarea>
+              </div>
+
+              <!-- Ações -->
+              <div class="form-actions">
+                <button type="button" class="btn" id="closeDreamModalBtn">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  Salvar Sonho
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Modal de Detalhes do Sonho -->
+        <div class="modal" id="dreamDetailModal">
+          <div class="modal-content dream-detail-modal">
+            <div class="dream-detail-header" id="dreamDetailHeader">
+              <!-- Header será preenchido via JS -->
+            </div>
+
+            <div class="dream-detail-body" id="dreamDetailBody">
+              <!-- Conteúdo será preenchido via JS -->
+            </div>
+
+            <div class="dream-detail-actions">
+              <button class="btn" id="closeDreamDetailBtn">Fechar</button>
+              <button class="btn btn-primary" id="addAmountBtn">
+                💰 Adicionar Valor
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal de Adicionar Valor -->
+        <div class="modal" id="addAmountModal">
+          <div class="modal-content">
+            <h2>💰 Adicionar Valor</h2>
+            <form id="addAmountForm">
+              <div class="form-group">
+                <label>Valor (R$)</label>
+                <input
+                  type="number"
+                  id="addAmountValue"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="0,00"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Data</label>
+                <input type="date" id="addAmountDate" required />
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn" id="closeAddAmountBtn">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">Adicionar</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
