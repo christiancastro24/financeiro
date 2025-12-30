@@ -180,8 +180,6 @@ function updateDailySpending(day, value) {
   renderBudgetTable();
 }
 
-// SUBSTITUA a função switchTab no seu script.js por esta versão:
-
 function switchTab(tab) {
   document
     .querySelectorAll(".nav-item")
@@ -196,11 +194,10 @@ function switchTab(tab) {
   // Controlar visibilidade do seletor de mês
   const monthSelector = document.getElementById("monthSelector");
   if (monthSelector) {
-    // Ocultar o seletor de mês para estas abas:
     if (tab === "jornada100k" || tab === "analytics" || tab === "retirement") {
-      monthSelector.style.display = "none";
+      monthSelector.classList.add("hidden");
     } else {
-      monthSelector.style.display = "flex";
+      monthSelector.classList.remove("hidden");
     }
   }
 
