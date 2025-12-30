@@ -6,6 +6,398 @@
     <title>Controle Financeiro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* Estilos específicos para Jornada 100k */
+      #jornada100k .jornada-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      #jornada100k .jornada-title {
+        font-size: 2.5em;
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+
+      #jornada100k .jornada-subtitle {
+        color: #8b92a7;
+        font-size: 1.1em;
+      }
+
+      #jornada100k .progress-section {
+        margin-bottom: 40px;
+      }
+
+      #jornada100k .progress-bar-container {
+        background: #252b3b;
+        height: 40px;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        margin: 20px 0;
+        border: 1px solid #2a2f3e;
+      }
+
+      #jornada100k .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 1s ease;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 15px;
+        min-width: 60px;
+      }
+
+      #jornada100k .progress-text {
+        color: white;
+        font-weight: bold;
+        font-size: 0.9em;
+        white-space: nowrap;
+      }
+
+      #jornada100k .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin: 30px 0;
+      }
+
+      #jornada100k .stat-card {
+        background: linear-gradient(135deg, #1a1f2e 0%, #252b3b 100%);
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        border: 1px solid #2a2f3e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s ease;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      #jornada100k .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+
+      #jornada100k .stat-label {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 8px;
+        color: #8b92a7;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+
+      #jornada100k .stat-value {
+        font-size: 1.6em;
+        font-weight: 700;
+        color: #ffffff;
+        line-height: 1.2;
+      }
+
+      #jornada100k .recommendation-card-wrapper {
+        grid-column: span 4;
+        margin-top: 10px;
+      }
+
+      #jornada100k .recommendation-card {
+        background: linear-gradient(135deg, #1a3a2e 0%, #1e4a38 100%);
+        border-left: 4px solid #27ae60;
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        text-align: center;
+        border: 1px solid #2a2f3e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      #jornada100k .recommendation-card .stat-label {
+        font-size: 14px;
+        color: #a8e6cf;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      #jornada100k .recommendation-card .stat-value {
+        font-size: 1.8em;
+        color: #27ae60;
+        margin-bottom: 5px;
+      }
+
+      #jornada100k .recommendation-subtitle {
+        font-size: 11px;
+        color: #8b92a7;
+        margin-top: 4px;
+        font-weight: 500;
+      }
+
+      #jornada100k .input-section {
+        background: #1e2738;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 20px 0;
+        border: 1px solid #2a2f3e;
+      }
+
+      #jornada100k .input-group {
+        margin: 15px 0;
+      }
+
+      #jornada100k .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #e4e6eb;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      #jornada100k .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #2a2f3e;
+        border-radius: 8px;
+        font-size: 1em;
+        background: #1a1f2e;
+        color: #e4e6eb;
+        transition: border 0.3s;
+      }
+
+      #jornada100k .input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      }
+
+      #jornada100k .config-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        margin: 20px 0;
+      }
+
+      #jornada100k .config-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      }
+
+      #jornada100k .j100k-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(4px);
+      }
+
+      #jornada100k .j100k-modal.active {
+        display: flex;
+      }
+
+      #jornada100k .j100k-modal-content {
+        background: #1a1f2e;
+        border-radius: 20px;
+        padding: 40px;
+        max-width: 500px;
+        width: 90%;
+        border: 1px solid #2a2f3e;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      #jornada100k .j100k-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #2a2f3e;
+      }
+
+      #jornada100k .j100k-modal-header h3 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.5em;
+      }
+
+      #jornada100k .j100k-modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+      }
+
+      #jornada100k .j100k-modal-actions button {
+        flex: 1;
+        margin: 0;
+      }
+
+      #jornada100k .btn-cancel {
+        background: #5a6c7d;
+      }
+
+      #jornada100k .btn-cancel:hover {
+        background: #4a5c6d;
+      }
+
+      #jornada100k .months-list {
+        margin-top: 30px;
+      }
+
+      #jornada100k .month-item {
+        background: #1e2738;
+        border: 2px solid #2a2f3e;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        display: grid;
+        grid-template-columns: 120px 1fr 150px;
+        gap: 20px;
+        align-items: center;
+        transition: all 0.2s ease;
+      }
+
+      #jornada100k .month-item:hover {
+        border-color: #5b8def;
+        box-shadow: 0 4px 12px rgba(91, 141, 239, 0.2);
+      }
+
+      #jornada100k .month-item.completed {
+        background: #1e3a38;
+        border-color: #27ae60;
+        border-left: 4px solid #27ae60;
+      }
+
+      #jornada100k .month-item.current {
+        background: #2e2738;
+        border-color: #f39c12;
+        border-width: 3px;
+        border-left: 4px solid #f39c12;
+      }
+
+      #jornada100k .month-date {
+        font-weight: bold;
+        color: #5b8def;
+        font-size: 1.1em;
+      }
+
+      #jornada100k .month-input-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #jornada100k .month-input-wrapper input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #2a2f3e;
+        border-radius: 8px;
+        font-size: 1em;
+        background: #1a1f2e;
+        color: #e4e6eb;
+        transition: border 0.3s;
+      }
+
+      #jornada100k .month-input-wrapper input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      }
+
+      #jornada100k .month-input-wrapper input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      #jornada100k .month-balance {
+        text-align: right;
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #ffffff;
+      }
+
+      #jornada100k .save-btn {
+        padding: 8px 15px;
+        width: auto;
+        font-size: 0.9em;
+        margin: 0;
+        background: #27ae60;
+        box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+      }
+
+      #jornada100k .save-btn:hover {
+        background: #229954;
+      }
+
+      #jornada100k .edit-btn {
+        padding: 8px 15px;
+        width: auto;
+        font-size: 0.9em;
+        margin: 0;
+        background: #5a6c7d;
+        box-shadow: 0 2px 8px rgba(90, 108, 125, 0.3);
+      }
+
+      #jornada100k .edit-btn:hover {
+        background: #4a5c6d;
+      }
+
+      #jornada100k .month-status {
+        font-size: 0.8em;
+        color: #8b92a7;
+        margin-top: 5px;
+      }
+
+      #jornada100k .reset-btn {
+        background: linear-gradient(135deg, #f39c12 0%, #e74c3c 100%);
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+      }
+
+      #jornada100k .emoji {
+        font-size: 1.5em;
+        margin-right: 10px;
+      }
+
+      @media (max-width: 768px) {
+        #jornada100k .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        #jornada100k .recommendation-card-wrapper {
+          grid-column: span 2;
+        }
+
+        #jornada100k .month-item {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="sidebar">
@@ -37,7 +429,7 @@
         </div>
         <div class="nav-item" data-tab="jornada100k">
           <span class="nav-icon">🚀</span>
-          <a href="jornada100k.html">Jornada 100k</a>
+          <span>Jornada 100k</span>
         </div>
       </div>
     </div>
@@ -51,7 +443,7 @@
       </div>
 
       <div class="content">
-        <div class="month-selector">
+        <div class="month-selector" id="monthSelector">
           <button id="prevMonth">← Anterior</button>
           <span id="currentMonth"></span>
           <button id="nextMonth">Próximo →</button>
@@ -169,7 +561,6 @@
 
         <div id="investments" class="tab-content">
           <div class="investments-container">
-            <!-- Toggle entre Meus Investimentos e Simulador -->
             <div class="investment-toggle">
               <button class="toggle-btn active" data-view="my-investments">
                 💎 Meus Investimentos
@@ -179,9 +570,7 @@
               </button>
             </div>
 
-            <!-- ========== VISUALIZAÇÃO: MEUS INVESTIMENTOS ========== -->
             <div id="my-investments-view" class="investment-view active">
-              <!-- Cards de Resumo -->
               <div class="investments-header">
                 <div class="investments-cards">
                   <div class="investment-card total">
@@ -220,13 +609,11 @@
                 </div>
               </div>
 
-              <!-- Gráfico dos Meus Investimentos -->
               <div class="investment-chart">
                 <h3>📈 Projeção de Crescimento - Meus Investimentos</h3>
                 <canvas id="myInvestmentChart"></canvas>
               </div>
 
-              <!-- Tabela de Projeção Mensal -->
               <div class="investment-table-section">
                 <h3>📊 Tabela de Projeção Mensal</h3>
                 <div class="investment-table-container">
@@ -245,7 +632,6 @@
                 </div>
               </div>
 
-              <!-- Lista de Investimentos -->
               <div class="investments-list">
                 <div class="section-header">
                   <h3>💼 Histórico de Investimentos</h3>
@@ -254,9 +640,7 @@
               </div>
             </div>
 
-            <!-- ========== VISUALIZAÇÃO: SIMULADOR ========== -->
             <div id="simulator-view" class="investment-view">
-              <!-- Simulador de Investimentos -->
               <div class="investment-simulator">
                 <h3>💡 Simulador de Investimentos</h3>
                 <div class="simulator-controls">
@@ -320,7 +704,6 @@
                 </div>
               </div>
 
-              <!-- Gráfico do Simulador -->
               <div class="investment-chart">
                 <h3>📈 Projeção de Crescimento - Simulador</h3>
                 <canvas id="investmentChart"></canvas>
@@ -329,7 +712,6 @@
           </div>
         </div>
 
-        <!-- ========== ABA APOSENTADORIA ========== -->
         <div id="retirement" class="tab-content">
           <div class="retirement-container">
             <div class="retirement-header">
@@ -456,6 +838,119 @@
             </div>
           </div>
         </div>
+
+        <!-- NOVA ABA: JORNADA 100K -->
+        <div id="jornada100k" class="tab-content">
+          <div class="jornada-header">
+            <h1 class="jornada-title">🎯 Jornada para 100k</h1>
+            <p class="jornada-subtitle">
+              Acompanhamento mês a mês até sua liberdade financeira
+            </p>
+          </div>
+
+          <div class="progress-section">
+            <h3>Progresso Atual</h3>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="j100k_progressBar">
+                <span class="progress-text" id="j100k_progressText">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Saldo Atual</div>
+              <div class="stat-value" id="j100k_currentAmount">R$ 0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Meta Final</div>
+              <div class="stat-value">R$ 100.000</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Falta para Meta</div>
+              <div class="stat-value" id="j100k_remaining">R$ 100.000</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Meses Restantes</div>
+              <div class="stat-value" id="j100k_monthsRemaining">48</div>
+            </div>
+          </div>
+
+          <div class="recommendation-card-wrapper">
+            <div class="recommendation-card">
+              <div class="stat-label">💡 Aporte Recomendado</div>
+              <div class="stat-value" id="j100k_recommendedDeposit">R$ 0</div>
+              <div class="recommendation-subtitle">
+                Valor mensal para manter o prazo
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0">
+            <button class="config-btn" onclick="j100k_openConfigModal()">
+              ⚙️ Configurar Planejamento
+            </button>
+          </div>
+
+          <div class="months-list">
+            <h3><span class="emoji">📅</span>Registro Mensal de Aportes</h3>
+            <div id="j100k_monthsContainer"></div>
+          </div>
+
+          <!-- Modal de Configuração -->
+          <div class="j100k-modal" id="j100k_configModal">
+            <div class="j100k-modal-content">
+              <div class="j100k-modal-header">
+                <span class="emoji">⚙️</span>
+                <h3>Configurações Iniciais</h3>
+              </div>
+
+              <div class="input-group">
+                <label for="j100k_startingBalance">Saldo Inicial (R$)</label>
+                <input
+                  type="number"
+                  id="j100k_startingBalance"
+                  value="0"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div class="input-group">
+                <label for="j100k_targetMonths">Prazo Desejado (meses)</label>
+                <input
+                  type="number"
+                  id="j100k_targetMonths"
+                  value="48"
+                  min="1"
+                />
+              </div>
+
+              <div class="j100k-modal-actions">
+                <button
+                  class="btn btn-cancel"
+                  onclick="j100k_closeConfigModal()"
+                >
+                  Cancelar
+                </button>
+                <button
+                  class="btn btn-primary"
+                  onclick="j100k_initializeFromModal()"
+                >
+                  Iniciar Planejamento
+                </button>
+              </div>
+
+              <button
+                class="btn reset-btn"
+                onclick="j100k_resetAll()"
+                style="width: 100%; margin-top: 15px"
+              >
+                🔄 Resetar Tudo
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -510,5 +1005,6 @@
 
     <script src="script.js"></script>
     <script src="retirement.js"></script>
+    <script src="jornada100k.js"></script>
   </body>
 </html>
