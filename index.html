@@ -397,6 +397,81 @@
           gap: 10px;
         }
       }
+
+      /* ========== ESTILOS PARA ABA DE ANÁLISES ========== */
+
+      .dashboard-charts-section {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        padding: 20px 0;
+      }
+
+      .chart-card {
+        background: linear-gradient(135deg, #1a1f2e 0%, #252b3b 100%);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #2a2f3e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .chart-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+
+      .chart-card.full-width {
+        grid-column: span 2;
+      }
+
+      .chart-title {
+        color: #e4e6eb;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 300px;
+      }
+
+      .chart-container canvas {
+        max-height: 100%;
+      }
+
+      /* Responsividade */
+      @media (max-width: 1024px) {
+        .dashboard-charts-section {
+          grid-template-columns: 1fr;
+        }
+
+        .chart-card.full-width {
+          grid-column: span 1;
+        }
+
+        .chart-container {
+          height: 250px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .chart-container {
+          height: 200px;
+        }
+
+        .chart-card {
+          padding: 16px;
+        }
+
+        .chart-title {
+          font-size: 16px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -411,12 +486,16 @@
           <span class="nav-icon">📊</span>
           <span>Dashboard</span>
         </div>
+        <div class="nav-item" data-tab="analytics">
+          <span class="nav-icon">📈</span>
+          <span>Análises</span>
+        </div>
         <div class="nav-item" data-tab="budget">
           <span class="nav-icon">📅</span>
           <span>Orçamento Diário</span>
         </div>
         <div class="nav-item" data-tab="summary">
-          <span class="nav-icon">📈</span>
+          <span class="nav-icon">🍕</span>
           <span>Resumo por Categoria</span>
         </div>
         <div class="nav-item" data-tab="investments">
@@ -485,6 +564,38 @@
           </div>
 
           <div class="transactions-list" id="transactionsList"></div>
+        </div>
+
+        <div id="analytics" class="tab-content">
+          <div class="dashboard-charts-section">
+            <div class="chart-card full-width">
+              <h3 class="chart-title">💚 Saúde Financeira</h3>
+              <div id="financialHealthScore"></div>
+            </div>
+
+            <div class="chart-card full-width">
+              <h3 class="chart-title">
+                📈 Evolução Patrimonial (Últimos 6 Meses)
+              </h3>
+              <div class="chart-container">
+                <canvas id="patrimonialChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">🍕 Gastos por Categoria</h3>
+              <div class="chart-container">
+                <canvas id="categoryPieChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h3 class="chart-title">📊 Receitas vs Despesas</h3>
+              <div class="chart-container">
+                <canvas id="incomeExpenseChart"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="budget" class="tab-content">
@@ -839,7 +950,6 @@
           </div>
         </div>
 
-        <!-- NOVA ABA: JORNADA 100K -->
         <div id="jornada100k" class="tab-content">
           <div class="jornada-header">
             <h1 class="jornada-title">🎯 Jornada para 100k</h1>
@@ -897,7 +1007,6 @@
             <div id="j100k_monthsContainer"></div>
           </div>
 
-          <!-- Modal de Configuração -->
           <div class="j100k-modal" id="j100k_configModal">
             <div class="j100k-modal-content">
               <div class="j100k-modal-header">
