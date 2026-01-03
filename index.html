@@ -1804,7 +1804,6 @@
         </div>
       </div>
     </div>
-
     <div class="modal" id="transactionModal">
       <div class="modal-content">
         <h2 id="modalTitle">Nova Transação</h2>
@@ -1854,8 +1853,81 @@
       </div>
     </div>
 
+    <!-- Assistente Financeiro IA -->
+    <button class="ai-chat-button" id="aiChatButton">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+        ></path>
+      </svg>
+    </button>
+
+    <div class="ai-chat-window" id="aiChatWindow">
+      <div class="ai-chat-header">
+        <div class="ai-chat-header-info">
+          <div class="ai-chat-avatar">🤖</div>
+          <div>
+            <div class="ai-chat-title">Assistente Financeiro IA</div>
+            <div class="ai-chat-status">Online • Pronto para ajudar</div>
+          </div>
+        </div>
+        <button class="ai-chat-close" id="aiChatClose">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="ai-chat-messages" id="aiChatMessages">
+        <!-- Mensagens serão inseridas aqui -->
+      </div>
+
+      <div class="ai-chat-input-container">
+        <input
+          type="text"
+          id="aiChatInput"
+          class="ai-chat-input"
+          placeholder="Digite sua pergunta sobre finanças..."
+        />
+        <button class="ai-chat-send" id="aiChatSend">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <script src="script.js"></script>
     <script src="retirement.js"></script>
     <script src="jornada100k.js"></script>
+    <script src="ai-assistant.js"></script>
   </body>
 </html>
