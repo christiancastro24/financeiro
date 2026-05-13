@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -1001,7 +1001,7 @@
         </div>
         <div class="nav-item" data-tab="budget">
           <span class="nav-icon">📅</span>
-          <span>Orçamento Diário</span>
+          <span>Orçamento 10 Dias</span>
         </div>
         <div class="nav-item" data-tab="summary">
           <span class="nav-icon">🍕</span>
@@ -1114,67 +1114,131 @@
 
         <div id="budget" class="tab-content">
           <div class="budget-section">
-            <div class="budget-header">
+            <div class="budget-header mb-4">
               <div>
-                <h3>Orçamento Mensal - Gastos Gerais</h3>
-                <p>
-                  Registre manualmente os gastos de cada dia. O saldo disponível
-                  acumula automaticamente.
+                <h3>Orçamento por Período (10 dias)</h3>
+                <p style="color: #8b92a7; font-size: 14px">
+                  Controle mais realista dividindo seu mês em 3 grandes blocos.
                 </p>
               </div>
-              <div id="budgetInfo" class="budget-info">
-                <div class="budget-info-label">Orçamento Mensal</div>
-                <div class="budget-info-value" id="budgetDisplay">R$ 0,00</div>
-              </div>
             </div>
 
-            <div id="noBudgetMessage" class="no-budget-message">
-              <div class="no-budget-icon">💰</div>
+            <!-- MENSAGEM SEM ORÇAMENTO -->
+            <div
+              id="noBudgetMessage"
+              class="no-budget-message"
+              style="display: none"
+            >
+              <div
+                class="no-budget-icon"
+                style="font-size: 48px; margin-bottom: 15px"
+              >
+                💰
+              </div>
               <h3>Nenhum orçamento definido</h3>
-              <p>
-                Cadastre uma despesa com categoria "Gastos Gerais" no Dashboard
-                para começar.
+              <p style="margin-bottom: 20px; color: #8b92a7">
+                Defina o valor total que você deseja gastar neste mês para
+                dividirmos nos períodos.
               </p>
-              <button class="btn btn-primary" id="goToDashboard">
-                Ir para Dashboard
-              </button>
+              <div
+                style="
+                  display: flex;
+                  gap: 10px;
+                  justify-content: center;
+                  max-width: 350px;
+                  margin: 0 auto;
+                "
+              >
+                <input
+                  type="number"
+                  id="newBudgetInput"
+                  placeholder="Ex: 1500"
+                  style="
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 2px solid #2a2f3e;
+                    background: #1a1f2e;
+                    color: #e4e6eb;
+                    width: 100%;
+                  "
+                />
+                <button class="btn btn-primary" onclick="saveNewBudget()">
+                  Definir
+                </button>
+              </div>
             </div>
 
-            <div id="budgetTableSection" class="budget-table-section">
-              <div class="budget-summary">
-                <div class="budget-summary-item">
-                  <label>Orçamento Total</label>
-                  <value>R$ <span id="summaryTotal">0,00</span></value>
+            <!-- ÁREA DO DASHBOARD (Mostrada apenas quando há orçamento) -->
+            <div id="budgetTableSection" style="display: none">
+              <!-- 4 CARDS DE RESUMO -->
+              <div class="budget-summary-grid">
+                <div class="budget-card">
+                  <span class="card-icon">💰</span>
+                  <p class="card-label">Orçamento Mensal</p>
+                  <p class="card-value text-primary" id="summaryTotal">
+                    R$ 0,00
+                  </p>
                 </div>
-                <div class="budget-summary-item">
-                  <label>Total Gasto</label>
-                  <value class="text-danger"
-                    >R$ <span id="summarySpent">0,00</span></value
-                  >
+                <div class="budget-card">
+                  <span class="card-icon">📉</span>
+                  <p class="card-label">Total Gasto</p>
+                  <p class="card-value text-danger" id="summarySpent">
+                    R$ 0,00
+                  </p>
                 </div>
-                <div class="budget-summary-item">
-                  <label>Disponível Hoje</label>
-                  <value class="text-success"
-                    >R$ <span id="summaryAvailable">0,00</span></value
-                  >
+                <div class="budget-card">
+                  <span class="card-icon">💲</span>
+                  <p class="card-label">Disponível</p>
+                  <p class="card-value text-success" id="summaryAvailable">
+                    R$ 0,00
+                  </p>
+                </div>
+                <div class="budget-card">
+                  <span class="card-icon">📊</span>
+                  <p class="card-label">Progresso</p>
+                  <p class="card-value text-purple" id="summaryPercent">0%</p>
                 </div>
               </div>
 
-              <div class="budget-table-container">
-                <table class="budget-table">
-                  <thead>
-                    <tr>
-                      <th style="width: 100px">Dia</th>
-                      <th style="width: 200px; text-align: center">
-                        Gasto no Dia
-                      </th>
-                      <th style="width: 180px; text-align: right">
-                        Disponível Acumulado
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody id="budgetTableBody"></tbody>
-                </table>
+              <!-- BARRA DE UTILIZAÇÃO E BOTÃO EDITAR -->
+              <div class="budget-middle-grid">
+                <div class="budget-progress-box">
+                  <div class="flex-between mb-2">
+                    <span class="text-label">Consumo do Orçamento Mensal</span>
+                    <span class="text-bold" id="progressPercentText">0%</span>
+                  </div>
+                  <div class="progress-track">
+                    <div
+                      class="progress-fill"
+                      id="mainProgressBar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+                <div class="budget-edit-box" onclick="editMonthlyBudget()">
+                  <span style="font-size: 20px">⚙️</span>
+                  <div>
+                    <strong>Definir / Alterar Orçamento</strong>
+                    <p style="font-size: 12px; color: #8b92a7">
+                      Clique para reajustar a meta
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3 BLOCOS DECENDIAIS -->
+              <h3
+                style="
+                  margin-bottom: 15px;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                ⏱️ Visão por Período
+              </h3>
+              <div class="budget-periods-grid" id="budgetPeriodsContainer">
+                <!-- Os blocos serão gerados pelo JavaScript aqui -->
               </div>
             </div>
           </div>
@@ -1928,6 +1992,7 @@
     <script src="script.js"></script>
     <script src="retirement.js"></script>
     <script src="jornada100k.js"></script>
+    <script src="budget.js"></script>
     <script src="ai-assistant.js"></script>
   </body>
 </html>

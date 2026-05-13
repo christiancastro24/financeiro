@@ -1,7 +1,6 @@
 let currentMonth = new Date();
 let transactions = [];
 let editingId = null;
-let dailySpending = {};
 
 // FORMAT CURRENCY
 function formatCurrency(value) {
@@ -14,6 +13,7 @@ function formatCurrency(value) {
 // INITIALIZE
 function init() {
   loadData();
+  if (typeof loadBudgetData === "function") loadBudgetData(); // Carrega os dados do budget.js
   updateMonth();
   updateDashboard();
   updateCategorySummary();
@@ -26,158 +26,16 @@ function loadData() {
   if (saved) {
     transactions = JSON.parse(saved);
   }
-  const savedSpending = localStorage.getItem("dailySpending");
-  if (savedSpending) {
-    dailySpending = JSON.parse(savedSpending);
-  }
-  loadCurrentBudget();
 }
 
 // SAVE DATA TO LOCALSTORAGE
 function saveData() {
   localStorage.setItem("financialData", JSON.stringify(transactions));
-  localStorage.setItem("dailySpending", JSON.stringify(dailySpending));
 }
 
 // GET MONTH KEY
 function getMonthKey() {
   return `${currentMonth.getFullYear()}-${currentMonth.getMonth()}`;
-}
-
-// GET MONTHLY BUDGET FROM TRANSACTIONS
-function getMonthlyBudgetFromTransactions() {
-  const monthTransactions = getMonthTransactions();
-  const gastosGerais = monthTransactions.find(
-    (t) => t.type === "expense" && t.category === "GastosGerais"
-  );
-  return gastosGerais ? gastosGerais.value : 0;
-}
-
-// LOAD CURRENT BUDGET
-function loadCurrentBudget() {
-  const budget = getMonthlyBudgetFromTransactions();
-
-  if (budget > 0) {
-    document.getElementById("budgetTableSection").style.display = "block";
-    document.getElementById("budgetInfo").style.display = "block";
-    document.getElementById("noBudgetMessage").style.display = "none";
-    renderBudgetTable();
-  } else {
-    document.getElementById("budgetTableSection").style.display = "none";
-    document.getElementById("budgetInfo").style.display = "none";
-    document.getElementById("noBudgetMessage").style.display = "block";
-  }
-}
-
-// RENDER BUDGET TABLE
-function renderBudgetTable() {
-  const budget = getMonthlyBudgetFromTransactions();
-
-  if (budget === 0) {
-    document.getElementById("budgetTableSection").style.display = "none";
-    document.getElementById("noBudgetMessage").style.display = "block";
-    document.getElementById("budgetInfo").style.display = "none";
-    return;
-  }
-
-  document.getElementById("noBudgetMessage").style.display = "none";
-  document.getElementById("budgetTableSection").style.display = "block";
-  document.getElementById("budgetInfo").style.display = "block";
-  document.getElementById("budgetDisplay").textContent = `R$ ${formatCurrency(
-    budget
-  )}`;
-
-  const daysInMonth = new Date(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
-    0
-  ).getDate();
-  const dailyBudget = budget / daysInMonth;
-
-  const monthKey = getMonthKey();
-  if (!dailySpending[monthKey]) {
-    dailySpending[monthKey] = {};
-  }
-
-  let accumulated = 0;
-  let totalSpent = 0;
-  const rows = [];
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const daySpent = dailySpending[monthKey][day] || 0;
-    totalSpent += daySpent;
-    accumulated += dailyBudget - daySpent;
-
-    const available = accumulated;
-    const isNegative = available < 0;
-
-    rows.push(`
-            <tr style="${daySpent > 0 ? "background: #f8f9fa;" : ""}">
-                <td style="font-weight: 600; color: #2c3e50;">Dia ${day}</td>
-                <td style="padding: 10px 12px; text-align: center;">
-                    <div style="display: inline-block; position: relative; width: 140px;">
-                        <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #95a5a6; font-size: 14px; pointer-events: none;">R$</span>
-                        <input 
-                            type="number" 
-                            step="0.01" 
-                            min="0"
-                            value="${daySpent || ""}"
-                            placeholder="0,00"
-                            onchange="updateDailySpending(${day}, this.value)"
-                            style="width: 100%; padding: 10px 12px 10px 32px; border: 1px solid #dfe6e9; border-radius: 6px; font-size: 14px; text-align: right; transition: all 0.2s;"
-                        />
-                    </div>
-                </td>
-                <td style="text-align: right; padding-right: 20px; font-weight: 600; font-size: 15px; color: ${
-                  isNegative ? "#e74c3c" : "#27ae60"
-                }">
-                    ${isNegative ? "- " : ""}R$ ${formatCurrency(
-      Math.abs(available)
-    )}
-                </td>
-            </tr>
-        `);
-  }
-
-  document.getElementById("budgetTableBody").innerHTML = rows.join("");
-
-  document.getElementById("summaryTotal").textContent = formatCurrency(budget);
-  document.getElementById("summarySpent").textContent =
-    formatCurrency(totalSpent);
-
-  const today = new Date().getDate();
-  const isCurrentMonth =
-    currentMonth.getMonth() === new Date().getMonth() &&
-    currentMonth.getFullYear() === new Date().getFullYear();
-
-  if (isCurrentMonth) {
-    let availableToday = 0;
-    for (let day = 1; day <= today; day++) {
-      const daySpent = dailySpending[monthKey][day] || 0;
-      availableToday += dailyBudget - daySpent;
-    }
-    document.getElementById("summaryAvailable").textContent = formatCurrency(
-      Math.max(0, availableToday)
-    );
-  } else {
-    document.getElementById("summaryAvailable").textContent = formatCurrency(
-      Math.max(0, accumulated)
-    );
-  }
-}
-
-// UPDATE DAILY SPENDING
-function updateDailySpending(day, value) {
-  const monthKey = getMonthKey();
-  if (!dailySpending[monthKey]) {
-    dailySpending[monthKey] = {};
-  }
-
-  const numValue = parseFloat(value) || 0;
-  dailySpending[monthKey][day] = numValue;
-
-  saveData();
-  renderBudgetTable();
 }
 
 function switchTab(tab) {
@@ -194,7 +52,6 @@ function switchTab(tab) {
   // Controlar visibilidade do seletor de mês
   const monthSelector = document.getElementById("monthSelector");
   if (monthSelector) {
-    // ⬇️ ADICIONADO "dreams" AQUI
     if (
       tab === "jornada100k" ||
       tab === "analytics" ||
@@ -210,12 +67,12 @@ function switchTab(tab) {
   const titles = {
     dashboard: "Dashboard",
     analytics: "Análises",
-    budget: "Orçamento Diário",
+    budget: "Orçamento 10 Dias",
     summary: "Resumo por Categoria",
     investments: "Investimentos",
     retirement: "Aposentadoria",
     jornada100k: "Jornada 100k",
-    dreams: "Metas & Sonhos", // ⬅️ ADICIONADO
+    dreams: "Metas & Sonhos",
   };
   document.getElementById("pageTitle").textContent = titles[tab];
 
@@ -226,12 +83,11 @@ function switchTab(tab) {
   } else if (tab === "summary") {
     updateCategorySummary();
   } else if (tab === "budget") {
-    loadCurrentBudget();
+    if (typeof loadBudgetView === "function") loadBudgetView();
   } else if (tab === "investments") {
     updateInvestmentsSummary();
     updateSimulator();
   } else if (tab === "dreams") {
-    // ⬅️ ADICIONADO
     initDreams();
   }
 }
@@ -242,7 +98,7 @@ function changeMonth(delta) {
   updateMonth();
   updateDashboard();
   updateCategorySummary();
-  loadCurrentBudget();
+  if (typeof loadBudgetView === "function") loadBudgetView();
 }
 
 // UPDATE MONTH DISPLAY
@@ -304,13 +160,13 @@ function updateDashboard() {
   const balancePrevisto = incomeTotal - expenseTotal;
 
   document.getElementById("totalIncome").textContent = `R$ ${formatCurrency(
-    incomeTotal
+    incomeTotal,
   )}`;
   document.getElementById("totalExpense").textContent = `R$ ${formatCurrency(
-    expenseTotal
+    expenseTotal,
   )}`;
   document.getElementById("balance").textContent = `R$ ${formatCurrency(
-    balancePrevisto
+    balancePrevisto,
   )}`;
 
   renderTransactions(monthTransactions);
@@ -342,15 +198,15 @@ function renderTransactions(list) {
                     <div class="transaction-details">
                         <span class="category-badge">${t.category}</span>
                         <span>${new Date(t.date).toLocaleDateString(
-                          "pt-BR"
+                          "pt-BR",
                         )}</span>
                         <span> • ${t.paid ? "Pago" : "Pendente"}</span>
                     </div>
                 </div>
                 <div class="transaction-value ${t.type}">
                     ${t.type === "income" ? "+" : "-"} R$ ${formatCurrency(
-        t.value
-      )}
+                      t.value,
+                    )}
                 </div>
                 <div class="transaction-actions">
                     ${
@@ -366,7 +222,7 @@ function renderTransactions(list) {
                     }')" title="Excluir">✕</button>
                 </div>
             </div>
-        `
+        `,
     )
     .join("");
 }
@@ -398,7 +254,7 @@ function updateCategorySummary() {
                 <span class="category-name">${cat}</span>
                 <span class="category-value">R$ ${formatCurrency(val)}</span>
             </div>
-        `
+        `,
     )
     .join("");
 }
@@ -447,7 +303,7 @@ function deleteTransaction(id) {
     saveData();
     updateDashboard();
     updateCategorySummary();
-    loadCurrentBudget();
+    if (typeof loadBudgetView === "function") loadBudgetView();
   }
 }
 
@@ -459,7 +315,7 @@ function togglePaid(id) {
     saveData();
     updateDashboard();
     updateCategorySummary();
-    loadCurrentBudget();
+    if (typeof loadBudgetView === "function") loadBudgetView();
   }
 }
 
@@ -494,7 +350,7 @@ function setupEventListeners() {
     e.preventDefault();
 
     const selectedDate = new Date(
-      document.getElementById("transactionDate").value + "T12:00:00"
+      document.getElementById("transactionDate").value + "T12:00:00",
     );
 
     const transaction = {
@@ -518,7 +374,7 @@ function setupEventListeners() {
     closeModal();
     updateDashboard();
     updateCategorySummary();
-    loadCurrentBudget();
+    if (typeof loadBudgetView === "function") loadBudgetView();
   });
 
   // Close modal on background click
@@ -532,54 +388,47 @@ function setupEventListeners() {
 }
 
 /* ============================================ */
-/* ADICIONAR NO FINAL DO SEU script.js */
-/* DEPOIS DA FUNÇÃO init() */
+/* ========== INVESTIMENTOS ========== */
 /* ============================================ */
 
-// ========== VARIÁVEIS GLOBAIS PARA INVESTIMENTOS ==========
 let investmentChart = null;
 let myInvestmentChart = null;
 const CDI_RATE_ANNUAL = 0.1175; // 11.75% ao ano (CDI atual aproximado)
 
-// ========== ATUALIZAR RESUMO DE INVESTIMENTOS ==========
 function updateInvestmentsSummary() {
-  // PEGAR TODOS OS INVESTIMENTOS (não filtrar por mês)
   const investments = transactions.filter(
-    (t) => t.type === "expense" && t.category === "Investimentos" && t.paid
+    (t) => t.type === "expense" && t.category === "Investimentos" && t.paid,
   );
 
   const totalInvested = investments.reduce((sum, inv) => sum + inv.value, 0);
 
-  // Calcular projeção de 12 meses com base no total já investido
   const projection12m = calculateInvestmentProjection(
     totalInvested,
     0,
     12,
-    100
+    100,
   );
   const gain12m = projection12m - totalInvested;
 
   document.getElementById("totalInvested").textContent = `R$ ${formatCurrency(
-    totalInvested
+    totalInvested,
   )}`;
   document.getElementById("projection12m").textContent = `R$ ${formatCurrency(
-    projection12m
+    projection12m,
   )}`;
-  document.getElementById(
-    "projection12mGain"
-  ).textContent = `+R$ ${formatCurrency(gain12m)} de rendimento`;
+  document.getElementById("projection12mGain").textContent =
+    `+R$ ${formatCurrency(gain12m)} de rendimento`;
 
   renderInvestmentsList(investments);
   updateMyInvestmentChart(totalInvested);
   renderInvestmentTable(totalInvested);
 }
 
-// ========== CALCULAR PROJEÇÃO DE INVESTIMENTO ==========
 function calculateInvestmentProjection(
   initial,
   monthly,
   months,
-  cdiPercentage
+  cdiPercentage,
 ) {
   const monthlyRate =
     Math.pow(1 + CDI_RATE_ANNUAL * (cdiPercentage / 100), 1 / 12) - 1;
@@ -592,7 +441,6 @@ function calculateInvestmentProjection(
   return total;
 }
 
-// ========== RENDERIZAR LISTA DE INVESTIMENTOS ==========
 function renderInvestmentsList(investments) {
   const container = document.getElementById("investmentsList");
 
@@ -607,9 +455,8 @@ function renderInvestmentsList(investments) {
     return;
   }
 
-  // Ordenar por data (mais recentes primeiro)
   const sortedInvestments = [...investments].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+    (a, b) => new Date(b.date) - new Date(a.date),
   );
 
   container.innerHTML = sortedInvestments
@@ -619,20 +466,19 @@ function renderInvestmentsList(investments) {
                 <div class="investment-item-header">
                     <div class="investment-item-title">${inv.title}</div>
                     <div class="investment-item-date">${new Date(
-                      inv.date
+                      inv.date,
                     ).toLocaleDateString("pt-BR")}</div>
                 </div>
                 <div class="investment-item-value">R$ ${formatCurrency(
-                  inv.value
+                  inv.value,
                 )}</div>
                 <span class="investment-item-category">${inv.category}</span>
             </div>
-        `
+        `,
     )
     .join("");
 }
 
-// ========== RENDERIZAR TABELA DE PROJEÇÃO ==========
 function renderInvestmentTable(totalInvested) {
   const tbody = document.getElementById("investmentTableBody");
   if (!tbody) {
@@ -677,7 +523,6 @@ function renderInvestmentTable(totalInvested) {
   tbody.innerHTML = rows.join("");
 }
 
-// ========== GRÁFICO DOS MEUS INVESTIMENTOS ==========
 function updateMyInvestmentChart(totalInvested) {
   const ctx = document.getElementById("myInvestmentChart");
   if (!ctx) return;
@@ -773,7 +618,6 @@ function updateMyInvestmentChart(totalInvested) {
   });
 }
 
-// ========== ATUALIZAR SIMULADOR ==========
 function updateSimulator() {
   const initialInput = document.getElementById("initialAmount");
   const monthlyInput = document.getElementById("monthlyAmount");
@@ -794,24 +638,22 @@ function updateSimulator() {
     initial,
     monthly,
     months,
-    cdiPercent
+    cdiPercent,
   );
   const earnings = finalAmount - totalInvested;
 
-  document.getElementById(
-    "simTotalInvested"
-  ).textContent = `R$ ${formatCurrency(totalInvested)}`;
+  document.getElementById("simTotalInvested").textContent =
+    `R$ ${formatCurrency(totalInvested)}`;
   document.getElementById("simEarnings").textContent = `R$ ${formatCurrency(
-    earnings
+    earnings,
   )}`;
   document.getElementById("simFinalAmount").textContent = `R$ ${formatCurrency(
-    finalAmount
+    finalAmount,
   )}`;
 
   updateInvestmentChart(initial, monthly, months, cdiPercent);
 }
 
-// ========== GRÁFICO DO SIMULADOR ==========
 function updateInvestmentChart(initial, monthly, months, cdiPercent) {
   const ctx = document.getElementById("investmentChart");
   if (!ctx) return;
@@ -915,7 +757,6 @@ function updateInvestmentChart(initial, monthly, months, cdiPercent) {
   });
 }
 
-// ========== ALTERNAR ENTRE VISUALIZAÇÕES ==========
 function setupInvestmentToggle() {
   const toggleBtns = document.querySelectorAll(".toggle-btn");
   const views = {
@@ -927,15 +768,12 @@ function setupInvestmentToggle() {
     btn.addEventListener("click", function () {
       const viewName = this.getAttribute("data-view");
 
-      // Atualizar botões
       toggleBtns.forEach((b) => b.classList.remove("active"));
       this.classList.add("active");
 
-      // Atualizar views
       Object.values(views).forEach((v) => v.classList.remove("active"));
       views[viewName].classList.add("active");
 
-      // Atualizar dados se necessário
       if (viewName === "simulator") {
         updateSimulator();
       }
@@ -943,7 +781,6 @@ function setupInvestmentToggle() {
   });
 }
 
-// ========== SETUP EVENT LISTENERS PARA INVESTIMENTOS ==========
 function setupInvestmentsListeners() {
   const simulatorInputs = [
     "initialAmount",
@@ -962,23 +799,20 @@ function setupInvestmentsListeners() {
   setupInvestmentToggle();
 }
 
-// ========== INICIALIZAR INVESTIMENTOS ==========
 setupInvestmentsListeners();
 
-// INITIALIZE APP
-init();
-
-setupInvestmentsListeners();
 if (document.getElementById("investments")) {
   updateSimulator();
 }
 
-// ========== VARIÁVEIS GLOBAIS PARA OS GRÁFICOS ==========
+/* ============================================ */
+/* ========== GRÁFICOS ANALYTICS ========== */
+/* ============================================ */
+
 let patrimonialChart = null;
 let categoryPieChart = null;
 let incomeExpenseChart = null;
 
-// ========== FUNÇÃO PRINCIPAL PARA ATUALIZAR DASHBOARD COM GRÁFICOS ==========
 function updateDashboardWithCharts() {
   updateFinancialHealthScore();
   updatePatrimonialChart();
@@ -986,7 +820,6 @@ function updateDashboardWithCharts() {
   updateIncomeExpenseChart();
 }
 
-// ========== 1. SCORE DE SAÚDE FINANCEIRA ==========
 function updateFinancialHealthScore() {
   const container = document.getElementById("financialHealthScore");
   if (!container) return;
@@ -1060,7 +893,6 @@ function updateFinancialHealthScore() {
   `;
 }
 
-// ========== 2. EVOLUÇÃO PATRIMONIAL (ÚLTIMOS 6 MESES) ==========
 function updatePatrimonialChart() {
   const ctx = document.getElementById("patrimonialChart");
   if (!ctx) return;
@@ -1068,7 +900,6 @@ function updatePatrimonialChart() {
   const months = [];
   const balances = [];
 
-  // Gerar últimos 6 meses
   for (let i = 5; i >= 0; i--) {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
@@ -1107,10 +938,9 @@ function updatePatrimonialChart() {
       `${monthNames[date.getMonth()]}/${date
         .getFullYear()
         .toString()
-        .slice(-2)}`
+        .slice(-2)}`,
     );
 
-    // Acumular saldo
     const previousBalance =
       balances.length > 0 ? balances[balances.length - 1] : 0;
     balances.push(previousBalance + (income - expense));
@@ -1188,7 +1018,6 @@ function updatePatrimonialChart() {
   });
 }
 
-// ========== 3. GASTOS POR CATEGORIA (PIE CHART) ==========
 function updateCategoryPieChart() {
   const ctx = document.getElementById("categoryPieChart");
   if (!ctx) return;
@@ -1283,7 +1112,6 @@ function updateCategoryPieChart() {
   });
 }
 
-// ========== 4. RECEITAS VS DESPESAS (BAR CHART) ==========
 function updateIncomeExpenseChart() {
   const ctx = document.getElementById("incomeExpenseChart");
   if (!ctx) return;
@@ -1292,7 +1120,6 @@ function updateIncomeExpenseChart() {
   const incomes = [];
   const expenses = [];
 
-  // Últimos 6 meses
   for (let i = 5; i >= 0; i--) {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
@@ -1331,7 +1158,7 @@ function updateIncomeExpenseChart() {
       `${monthNames[date.getMonth()]}/${date
         .getFullYear()
         .toString()
-        .slice(-2)}`
+        .slice(-2)}`,
     );
     incomes.push(income);
     expenses.push(expense);
@@ -1420,9 +1247,10 @@ function updateIncomeExpenseChart() {
   });
 }
 
-// ========== METAS & SONHOS - JAVASCRIPT ==========
+/* ============================================ */
+/* ========== METAS & SONHOS ========== */
+/* ============================================ */
 
-// Frases motivacionais
 const motivationalQuotes = [
   "Sonhos não morrem, apenas adormecem na alma da gente. 💫",
   "O sucesso é a soma de pequenos esforços repetidos dia após dia. 🌟",
@@ -1436,7 +1264,6 @@ const motivationalQuotes = [
   "O melhor momento para começar foi ontem. O segundo melhor é agora. ⏰",
 ];
 
-// Mapas de países (coordenadas para o mapa)
 const countryCoordinates = {
   BR: { lat: -14.235, lng: -51.9253, name: "Brasil" },
   US: { lat: 37.0902, lng: -95.7129, name: "Estados Unidos" },
@@ -1461,16 +1288,13 @@ let dreams = [];
 let editingDreamId = null;
 let currentDreamImage = null;
 
-// ========== INICIALIZAÇÃO ==========
 function initDreams() {
-  console.log("Inicializando aba de sonhos...");
   loadDreams();
   displayDailyMotivation();
   renderDreams();
   setupDreamListeners();
 }
 
-// ========== CARREGAR DADOS ==========
 function loadDreams() {
   const saved = localStorage.getItem("dreams");
   if (saved) {
@@ -1478,12 +1302,10 @@ function loadDreams() {
   }
 }
 
-// ========== SALVAR DADOS ==========
 function saveDreams() {
   localStorage.setItem("dreams", JSON.stringify(dreams));
 }
 
-// ========== FRASE MOTIVACIONAL DIÁRIA ==========
 function displayDailyMotivation() {
   const today = new Date().toDateString();
   const savedDate = localStorage.getItem("motivationDate");
@@ -1499,7 +1321,6 @@ function displayDailyMotivation() {
   document.getElementById("dailyMotivation").textContent = quote;
 }
 
-// ========== RENDERIZAR SONHOS ==========
 function renderDreams() {
   const grid = document.getElementById("dreamsGrid");
   const empty = document.getElementById("dreamsEmpty");
@@ -1557,8 +1378,8 @@ function renderDreams() {
                 ? `
               <div class="dream-card-location">
                 📍 ${dream.city || ""} ${
-                    dream.city && dream.country ? "•" : ""
-                  } ${countryCoordinates[dream.country]?.name || ""}
+                  dream.city && dream.country ? "•" : ""
+                } ${countryCoordinates[dream.country]?.name || ""}
               </div>
             `
                 : ""
@@ -1568,20 +1389,20 @@ function renderDreams() {
           <div class="dream-progress">
             <div class="dream-progress-header">
               <span class="dream-progress-current">R$ ${formatCurrency(
-                dream.current
+                dream.current,
               )}</span>
               <span class="dream-progress-target">R$ ${formatCurrency(
-                dream.target
+                dream.target,
               )}</span>
             </div>
             <div class="dream-progress-bar">
               <div class="dream-progress-fill" style="width: ${Math.min(
                 progress,
-                100
+                100,
               )}%"></div>
             </div>
             <div class="dream-progress-percentage">${progress.toFixed(
-              1
+              1,
             )}% conquistado</div>
           </div>
           
@@ -1606,14 +1427,11 @@ function renderDreams() {
     .join("");
 }
 
-// ========== SETUP EVENT LISTENERS ==========
 function setupDreamListeners() {
-  // Botão adicionar sonho
   document
     .getElementById("addDreamBtn")
-    ?.addEventListener("click", openDreamModal);
+    ?.addEventListener("click", () => openDreamModal(null));
 
-  // Fechar modais
   document
     .getElementById("closeDreamModalBtn")
     ?.addEventListener("click", closeDreamModal);
@@ -1624,17 +1442,14 @@ function setupDreamListeners() {
     .getElementById("closeAddAmountBtn")
     ?.addEventListener("click", closeAddAmountModal);
 
-  // Form de sonho
   document.getElementById("dreamForm")?.addEventListener("submit", saveDream);
 
-  // Tipo de sonho (mostrar seção de viagem)
   document.getElementById("dreamType")?.addEventListener("change", (e) => {
     const travelSection = document.getElementById("travelSection");
     travelSection.style.display =
       e.target.value === "travel" ? "block" : "none";
   });
 
-  // Upload de imagem
   document.getElementById("uploadImageBtn")?.addEventListener("click", () => {
     document.getElementById("dreamImage").click();
   });
@@ -1643,18 +1458,15 @@ function setupDreamListeners() {
     .getElementById("dreamImage")
     ?.addEventListener("change", handleImageUpload);
 
-  // Form adicionar valor
   document
     .getElementById("addAmountForm")
     ?.addEventListener("submit", saveAmount);
 
-  // Botão adicionar valor no detalhe
   document.getElementById("addAmountBtn")?.addEventListener("click", () => {
     closeDreamDetailModal();
     openAddAmountModal();
   });
 
-  // Fechar modal ao clicar fora
   document.getElementById("dreamModal")?.addEventListener("click", (e) => {
     if (e.target.id === "dreamModal") closeDreamModal();
   });
@@ -1670,7 +1482,6 @@ function setupDreamListeners() {
   });
 }
 
-// ========== UPLOAD DE IMAGEM ==========
 function handleImageUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1689,7 +1500,6 @@ function showImagePreview(src) {
   preview.classList.add("active");
 }
 
-// ========== MODAL DE SONHO ==========
 function openDreamModal(dreamId = null) {
   editingDreamId = dreamId;
   currentDreamImage = null;
@@ -1738,16 +1548,12 @@ function closeDreamModal() {
   currentDreamImage = null;
 }
 
-// ========== SALVAR SONHO ==========
-// SUBSTITUA a função saveDream no seu script.js por esta versão corrigida:
-
 function saveDream(e) {
   e.preventDefault();
 
   const form = document.getElementById("dreamForm");
   if (!form) return;
 
-  // Validar campos obrigatórios
   const name = document.getElementById("dreamName")?.value.trim();
   const target = document.getElementById("dreamTarget")?.value;
 
@@ -1780,37 +1586,26 @@ function saveDream(e) {
     history: [],
   };
 
-  console.log("Salvando sonho:", dreamData);
-
   if (editingDreamId) {
-    // Editando sonho existente
     const index = dreams.findIndex((d) => d.id === editingDreamId);
     if (index !== -1) {
-      // Preserva histórico e data de criação
       dreamData.history = dreams[index].history || [];
       dreamData.createdAt = dreams[index].createdAt || dreamData.createdAt;
       dreams[index] = dreamData;
-      console.log("Sonho editado:", dreamData);
     } else {
       dreams.push(dreamData);
-      console.log("Novo sonho criado (edição falhou):", dreamData);
     }
   } else {
-    // Novo sonho
     dreams.push(dreamData);
-    console.log("Novo sonho criado:", dreamData);
   }
 
-  // Salvar e renderizar
   saveDreams();
   renderDreams();
   closeDreamModal();
 
-  // Mostra feedback
   showToast("Sonho salvo com sucesso! ✨");
 }
 
-// Adiciona função de toast para feedback
 function showToast(message) {
   const toast = document.createElement("div");
   toast.className = "toast-message";
@@ -1836,21 +1631,22 @@ function showToast(message) {
   }, 3000);
 }
 
-// Adiciona animações CSS para o toast
-const style = document.createElement("style");
-style.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-`;
-document.head.appendChild(style);
+if (!document.querySelector("style#toast-style")) {
+  const style = document.createElement("style");
+  style.id = "toast-style";
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(style);
+}
 
-// ========== MODAL DE DETALHES ==========
 function openDreamDetail(dreamId) {
   const dream = dreams.find((d) => d.id === dreamId);
   if (!dream) return;
@@ -1864,7 +1660,6 @@ function openDreamDetail(dreamId) {
   const progress = (dream.current / dream.target) * 100;
   const remaining = dream.target - dream.current;
 
-  // Header
   header.innerHTML = `
     ${
       dream.image
@@ -1883,7 +1678,6 @@ function openDreamDetail(dreamId) {
     </div>
   `;
 
-  // Body
   body.innerHTML = `
     ${
       dream.description
@@ -1899,13 +1693,13 @@ function openDreamDetail(dreamId) {
       <div class="dream-stat-card">
         <div class="dream-stat-label">Economizado</div>
         <div class="dream-stat-value success">R$ ${formatCurrency(
-          dream.current
+          dream.current,
         )}</div>
       </div>
       <div class="dream-stat-card">
         <div class="dream-stat-label">Falta</div>
         <div class="dream-stat-value warning">R$ ${formatCurrency(
-          remaining
+          remaining,
         )}</div>
       </div>
     </div>
@@ -1914,13 +1708,13 @@ function openDreamDetail(dreamId) {
       <div class="dream-progress-header">
         <span style="color: #8b92a7;">Progresso</span>
         <span style="color: #27ae60; font-weight: 700;">${progress.toFixed(
-          1
+          1,
         )}%</span>
       </div>
       <div class="dream-progress-bar" style="height: 16px;">
         <div class="dream-progress-fill" style="width: ${Math.min(
           progress,
-          100
+          100,
         )}%"></div>
       </div>
     </div>
@@ -1931,7 +1725,7 @@ function openDreamDetail(dreamId) {
       <div style="text-align: center; margin: 20px 0; padding: 12px; background: #1e2738; border-radius: 8px;">
         <span style="color: #8b92a7;">Data Alvo: </span>
         <strong style="color: #ffffff;">${new Date(
-          dream.targetDate
+          dream.targetDate,
         ).toLocaleDateString("pt-BR")}</strong>
       </div>
     `
@@ -1955,13 +1749,11 @@ function closeDreamDetailModal() {
   document.getElementById("dreamDetailModal").classList.remove("active");
 }
 
-// ========== EDITAR SONHO ==========
 function editDream(dreamId) {
   closeDreamDetailModal();
   openDreamModal(dreamId);
 }
 
-// ========== DELETAR SONHO ==========
 function deleteDream(dreamId) {
   if (!confirm("Tem certeza que deseja excluir este sonho?")) return;
 
@@ -1971,7 +1763,6 @@ function deleteDream(dreamId) {
   closeDreamDetailModal();
 }
 
-// ========== MODAL ADICIONAR VALOR ==========
 function openAddAmountModal() {
   const modal = document.getElementById("addAmountModal");
   document.getElementById("addAmountForm").reset();
@@ -2009,6 +1800,5 @@ function saveAmount(e) {
   }
 }
 
-// ========== INICIALIZAR QUANDO A ABA FOR ABERTA ==========
-// Adicione no switchTab() do script.js:
-// if (tab === 'dreams') { initDreams(); }
+// Inicializa a aplicação
+init();
