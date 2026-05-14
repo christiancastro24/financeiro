@@ -337,13 +337,11 @@ function setupEventListeners() {
     .addEventListener("click", () => changeMonth(1));
 
   // Modal
+  // Modal
   document.getElementById("openModalBtn").addEventListener("click", openModal);
   document
     .getElementById("closeModalBtn")
     .addEventListener("click", closeModal);
-  document
-    .getElementById("goToDashboard")
-    .addEventListener("click", () => switchTab("dashboard"));
 
   // Form submit
   document.getElementById("transactionForm").addEventListener("submit", (e) => {
